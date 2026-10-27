@@ -555,6 +555,7 @@
 
     const sheetId = $("googleSheetId").value.trim();
     const sheetTabName = $("sheetTabName").value.trim() || "Sheet1";
+    const startColumn = $("startColumn").value.trim() || "A";
 
     if (!sheetId) {
       setGoogleFormStatus("Enter your Google Sheet ID before saving.", true);
@@ -563,8 +564,10 @@
 
     config.googleSheetId = sheetId;
     config.googleSheetTab = sheetTabName;
+    config.googleStartColumn = startColumn;
     $("googleSheetId").value = sheetId;
     $("sheetTabName").value = sheetTabName;
+    $("startColumn").value = startColumn;
     setGoogleFormStatus("Sheet saved. Ready to sync.", false);
     saveCurrentState();
   }
@@ -572,9 +575,11 @@
   function clearGoogleFormSync() {
     $("googleSheetId").value = "";
     $("sheetTabName").value = $("sheetTabName").value.trim() || "Sheet1";
+    $("startColumn").value = "A";
     if (config) {
       delete config.googleSheetId;
       delete config.googleSheetTab;
+      delete config.googleStartColumn;
     }
     setGoogleFormStatus("Sheet cleared.", false);
     saveCurrentState();
@@ -609,14 +614,18 @@
         return;
       }
 
+      const startColumn = ($("startColumn").value.trim() || "A").toUpperCase();
+      const rowValues = [payload.createdAt, ...Object.values(payload.data)];
+
       const body = JSON.stringify({
         title: payload.title,
         teamNumber: payload.teamNumber,
         createdAt: payload.createdAt,
         data: payload.data,
-        row: Object.values(payload.data),
+        row: rowValues,
         sheetId: sheetId,
-        sheetName: sheetName
+        sheetName: sheetName,
+        startColumn: startColumn
       });
 
       setModalStatus("Sending scouting data to the script...", false, true);

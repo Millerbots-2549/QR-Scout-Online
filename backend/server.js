@@ -189,6 +189,7 @@ app.post('/api/sync-sheet', async (req, res) => {
 
     const sheetId = payload.sheetId || process.env.GOOGLE_SHEET_ID;
     const sheetName = payload.sheetName || process.env.SHEET_NAME || 'Scouting';
+    const startColumn = (payload.startColumn || 'A').toUpperCase();
 
     if (!sheetId) {
       return res.status(400).json({ ok: false, error: 'Missing sheetId.' });
@@ -220,7 +221,7 @@ app.post('/api/sync-sheet', async (req, res) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: `${sheetName}!A1`,
+      range: `${sheetName}!${startColumn}1`,
       valueInputOption: 'RAW',
       insertDataOption: 'INSERT_ROWS',
       requestBody: {
