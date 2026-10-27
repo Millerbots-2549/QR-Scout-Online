@@ -229,6 +229,40 @@ app.post('/api/sync-sheet', async (req, res) => {
       }
     });
 
+    // Also log the submission timestamp to a separate "Submission" tab (not mixed with the data row).
+    const submissionSheetName = process.env.SUBMISSION_SHEET_NAME || 'Submission';
+    sheetMetadataCache = null;
+    const subMetadata = await getSheetMetadata(sheets, sheetId);
+    const submissionExists = (subMetadata.sheets || []).some((s) => s.properties && s.properties.title === submissionSheetName);
+
+    if (!submissionExists) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: sheetId,
+        requestBody: {
+          requests: [{
+            addSheet: {
+              properties: {
+                title: submissionSheetName,
+                sheetType: 'GRID',
+                gridProperties: { rowCount: 1000, columnCount: 5 }
+              }
+            }
+          }]
+        }
+      });
+      sheetMetadataCache = null;
+    }
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId,
+      range: `${submissionSheetName}!A1`,
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: {
+        values: [[payload.createdAt]]
+      }
+    });
+
     // Log every scouting sync to the master sheet with a timestamp.
     await logSubmissionToMaster(sheets, 'scouting-sync', { sheetId, sheetName, rowCount: row.length });
 
