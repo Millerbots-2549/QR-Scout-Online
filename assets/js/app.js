@@ -143,19 +143,6 @@
     container.appendChild(toast);
     setTimeout(() => { toast.remove(); }, duration);
   }
-  // Connection indicator
-  function updateConnectionIndicator() {
-    const el = document.getElementById("connection-indicator");
-    const text = document.getElementById("connection-text");
-    if (!el || !text) return;
-    if (navigator.onLine) {
-      el.className = "online";
-      text.textContent = "Online";
-    } else {
-      el.className = "offline";
-      text.textContent = "Offline — entries will queue";
-    }
-  }
   // Outbox management panel
   function renderOutboxPanel() {
     const panel = document.getElementById("outboxPanel");
@@ -1083,8 +1070,7 @@
     if (pwaHint) pwaHint.textContent = "You're running the installed app \u2014 nice!";
   }
   window.addEventListener("hashchange", route);
-  window.addEventListener("online", () => { flushOutbox(); updateConnectionIndicator(); });
-  window.addEventListener("offline", () => { updateConnectionIndicator(); });
+  window.addEventListener("online", () => { flushOutbox(); });
   // Keyboard shortcuts
   document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
@@ -1092,7 +1078,6 @@
     if (e.key === "r" && !e.ctrlKey && !e.metaKey) { e.preventDefault(); document.getElementById("resetBtn")?.click(); }
   });
   updateOutboxBadge();
-  updateConnectionIndicator();
 
   // saves the row to the owner's Google Sheet; the browser then emails the
   // owner through FormSubmit - their free plan blocks server-side calls from
