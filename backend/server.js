@@ -31,6 +31,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// Hide Express fingerprint and set security headers.
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
+
 // Rate limiting: 60 requests per minute per IP for sync-sheet/feedback,
 // 30 per minute for everything else. Prevents abuse and protects the
 // Google Sheets API quota.

@@ -75,7 +75,7 @@
     </div>
 
     <header class="brand">
-      <img src="assets/images/millerbot-orange.png" alt="QR Scout logo">
+      <img src="assets/images/millerbot-orange.png" alt="QR Scout logo" loading="lazy" decoding="async">
       <div>
         <h1>QR Scout</h1>
         <p class="sub">Offline scouting - QR codes only</p>
@@ -150,7 +150,13 @@
   <script>
     (function () {
       "use strict";
-      var $ = function (id) { return document.getElementById(id); };
+      var elementCache = {};
+      var $ = function (id) {
+        if (elementCache[id]) return elementCache[id];
+        var el = document.getElementById(id);
+        elementCache[id] = el;
+        return el;
+      };
       var STORAGE_KEY = "qrscoutOfflineState";
       var config = null;
 
@@ -451,7 +457,10 @@
         if (btn) btn.disabled = true;
         setUpdateStatus("Checking GitHub for the latest release...");
         try {
-          var res = await fetch(RELEASES_API, { headers: { Accept: "application/vnd.github+json" } });
+          var controller = new AbortController();
+          var timer = setTimeout(function () { controller.abort(); }, 15000);
+          var res = await fetch(RELEASES_API, { headers: { Accept: "application/vnd.github+json" }, signal: controller.signal });
+          clearTimeout(timer);
           if (!res.ok) throw new Error("GitHub responded " + res.status);
           var release = await res.json();
           var latest = release.tag_name || "";
