@@ -67,17 +67,17 @@
   function fetchWithTimeout(url, opts, ms) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), ms);
-    return fetch(url, { ...opts, signal: controller.signal })
+    return fetch(url, { ...opts, keepalive: true, signal: controller.signal })
       .then((res) => { clearTimeout(timer); return res; })
       .catch((err) => { clearTimeout(timer); throw err; });
   }
 
-  const FETCH_TIMEOUT_MS = 20000;
+  const FETCH_TIMEOUT_MS = 10000;
   function postEntry(sheetId, sheetName, payload) {
     return fetchWithTimeout(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sheetId, sheetName, data: payload.data, row: payload.row, startColumn: (payload.startColumn || "A").toUpperCase() })
+      body: JSON.stringify({ sheetId, sheetName, row: payload.row, startColumn: (payload.startColumn || "A").toUpperCase() })
     }, FETCH_TIMEOUT_MS).then(async (res) => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) {
@@ -91,29 +91,30 @@
     if (!navigator.onLine) return Promise.resolve(0);
     let list = getOutbox();
     if (!list.length) { updateOutboxBadge(); return Promise.resolve(0); }
-    let synced = 0;
-    const step = () => {
-      if (!list.length) return Promise.resolve();
-      const entry = list[0];
-      const liveId = ($("googleSheetId") && $("googleSheetId").value.trim()) || "";
+    const liveId = ($("googleSheetId") && $("googleSheetId").value.trim()) || "";
+    // Sync up to 3 entries in parallel for speed
+    const CONCURRENCY = 3;
+    const batch = list.slice(0, CONCURRENCY);
+    const promises = batch.map((entry) => {
       const sheetId = liveId || entry.sheetId || "";
-      if (!sheetId) return Promise.resolve();
-      return postEntry(sheetId, entry.sheetName, entry.payload).then(
-        () => { list = list.slice(1); saveOutbox(list); synced += 1; return step(); },
-        () => {}
-      );
-    };
-    return step().then(() => {
-      const remaining = getOutbox().length;
-      if (synced > 0) {
-        setStatus(
-          remaining > 0
-            ? "Back online \u2014 synced " + synced + " queued " + (synced === 1 ? "entry" : "entries") + " (" + remaining + " still pending)."
-            : "Back online \u2014 synced " + synced + " queued " + (synced === 1 ? "entry" : "entries") + ".",
-          remaining > 0
-        );
-      } else { updateOutboxBadge(); }
-      return synced;
+      if (!sheetId) return Promise.resolve(null);
+      return postEntry(sheetId, entry.sheetName, entry.payload)
+        .then(() => entry)
+        .catch(() => null);
+    });
+    return Promise.all(promises).then((results) => {
+      const synced = results.filter(Boolean);
+      if (synced.length) {
+        const syncedIds = new Set(synced.map((e) => e.queuedAt));
+        const remaining = list.filter((e) => !syncedIds.has(e.queuedAt));
+        saveOutbox(remaining);
+      }
+      updateOutboxBadge();
+      const remainingCount = getOutbox().length;
+      if (synced.length > 0) {
+        showToast(`${synced.length} queued entr${synced.length === 1 ? "y" : "ies"} synced.`, "ok");
+      }
+      return synced.length;
     });
   }
   function updateOutboxBadge() {
@@ -685,7 +686,6 @@
         title: payload.title,
         teamNumber: payload.teamNumber,
         createdAt: payload.createdAt,
-        data: payload.data,
         row: rowValues,
         sheetId: sheetId,
         sheetName: sheetName,

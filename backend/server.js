@@ -100,9 +100,40 @@ async function getSheetsClient() {
   return sheetsClientPromise;
 }
 
-// Nodemailer transporter: create once, reuse across requests. nodemailer pools
-// connections internally, so recreating it per feedback POST wastes TCP/TLS
-// handshakes on every submission.
+// Cache of known sheet names per spreadsheet ID to avoid repeated metadata fetches.
+const sheetExistenceCache = new Map(); // key: sheetId -> Set of sheet names
+
+async function ensureSheetExists(sheets, sheetId, sheetName) {
+  const key = sheetId;
+  let known = sheetExistenceCache.get(key);
+  if (!known) {
+    known = new Set();
+    sheetExistenceCache.set(key, known);
+  }
+  if (known.has(sheetName)) return;
+
+  // Fetch metadata (cache may be stale, force refresh)
+  sheetMetadataCache = null;
+  const metadata = await getSheetMetadata(sheets, sheetId);
+  const exists = (metadata.sheets || []).some((s) => s.properties && s.properties.title === sheetName);
+  if (!exists) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      requestBody: {
+        requests: [{
+          addSheet: {
+            properties: {
+              title: sheetName,
+              sheetType: 'GRID',
+              gridProperties: { rowCount: 1000, columnCount: 50 }
+            }
+          }
+        }]
+      }
+    });
+  }
+  known.add(sheetName);
+}
 let smtpTransporter = null;
 function getSmtpTransporter() {
   if (!smtpTransporter) {
@@ -224,28 +255,7 @@ app.post('/api/sync-sheet', async (req, res) => {
     }
 
     const sheets = await getSheetsClient();
-    const metadata = await getSheetMetadata(sheets, sheetId);
-    const exists = (metadata.sheets || []).some((sheet) => sheet.properties && sheet.properties.title === sheetName);
-
-    if (!exists) {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: sheetId,
-        requestBody: {
-          requests: [{
-            addSheet: {
-              properties: {
-                title: sheetName,
-                sheetType: 'GRID',
-                gridProperties: { rowCount: 1000, columnCount: 50 }
-              }
-            }
-          }]
-        }
-      });
-      // Invalidate metadata cache since we just added a sheet.
-      sheetMetadataCache = null;
-      sheetMetadataCacheTs = 0;
-    }
+    await ensureSheetExists(sheets, sheetId, sheetName);
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
