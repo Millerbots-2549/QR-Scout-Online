@@ -440,6 +440,92 @@ a.download-card:hover {
   line-height: 1.4;
 }
 
+/* ---------- Toast notifications ---------- */
+#toast-container {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  padding: 12px 18px;
+  border-radius: 10px;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  min-width: 260px;
+  text-align: center;
+  animation: toastIn 0.2s ease, toastOut 0.2s ease 2.8s;
+}
+.toast.error { background: rgba(255, 159, 159, 0.9); color: #6b1f1f; border-color: var(--error); }
+.toast.ok { background: rgba(124, 231, 180, 0.9); color: #1b4532; border-color: var(--success); }
+@keyframes toastIn { from { transform: translateX(-50%) translateY(-20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
+@keyframes toastOut { to { transform: translateX(-50%) translateY(-20px); opacity: 0; } }
+
+/* ---------- Offline / online indicator ---------- */
+#connection-indicator {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--muted);
+  pointer-events: none;
+}
+#connection-indicator.online { color: var(--success); border-color: var(--success); }
+#connection-indicator.offline { color: var(--error); border-color: var(--error); background: rgba(255, 159, 159, 0.1); }
+#connection-indicator .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background: currentColor;
+  animation: pulse 1.5s infinite;
+}
+#connection-indicator.offline .dot { animation: none; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ---------- Outbox management panel ---------- */
+.outbox-item {
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+.outbox-item .outbox-meta { color: var(--muted); font-size: 0.75rem; margin-bottom: 4px; }
+.outbox-actions { display: flex; gap: 6px; margin-top: 6px; }
+.outbox-actions button { font-size: 0.75rem; padding: 6px 10px; }
+
+/* ---------- Match counter badge ---------- */
+#match-number-badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--blue);
+  color: white;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* ---------- Required field indicator ---------- */
+.required-mark { color: var(--error); margin-left: 2px; }
+
 /* Pending-offline badge next to the Scouter tab */
 #appNav .outbox-badge,
 .view-switcher .outbox-badge,

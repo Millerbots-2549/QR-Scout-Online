@@ -16,9 +16,19 @@ win:
   target:
     - nsis
 nsis:
-  oneClick: true
+  oneClick: false
   perMachine: false
-  allowToChangeInstallationDirectory: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: QR Scout
+  installerIcon: ../assets/images/millerbot-orange.png
+  uninstallerIcon: ../assets/images/millerbot-orange.png
+  license: ../LICENSE
+  installerHeader: ../assets/images/millerbot-orange.png
+  differentialPackage: true
+  include: assets/installer.nsh
 mac:
   target:
     - dmg

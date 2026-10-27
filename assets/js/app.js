@@ -77,7 +77,7 @@
     return fetchWithTimeout(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sheetId, sheetName, data: payload.data, row: payload.row })
+      body: JSON.stringify({ sheetId, sheetName, data: payload.data, row: payload.row, startColumn: (payload.startColumn || "A").toUpperCase() })
     }, FETCH_TIMEOUT_MS).then(async (res) => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) {
@@ -129,7 +129,71 @@
     }
     badge.textContent = pending > 0 ? pending + " pending offline" : "";
     badge.classList.toggle("hidden", pending === 0);
+    // Also update the outbox panel UI if visible
+    renderOutboxPanel();
   }
+  // Toast notification system
+  function showToast(message, type = "ok", duration = 3000) {
+    const container = document.getElementById("toast-container");
+    if (!container) return;
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, duration);
+  }
+  // Connection indicator
+  function updateConnectionIndicator() {
+    const el = document.getElementById("connection-indicator");
+    const text = document.getElementById("connection-text");
+    if (!el || !text) return;
+    if (navigator.onLine) {
+      el.className = "online";
+      text.textContent = "Online";
+    } else {
+      el.className = "offline";
+      text.textContent = "Offline — entries will queue";
+    }
+  }
+  // Outbox management panel
+  function renderOutboxPanel() {
+    const panel = document.getElementById("outboxPanel");
+    const list = document.getElementById("outboxList");
+    const count = document.getElementById("outboxCount");
+    if (!panel || !list || !count) return;
+    const items = getOutbox();
+    count.textContent = items.length;
+    panel.classList.toggle("hidden", items.length === 0);
+    if (items.length === 0) return;
+    list.innerHTML = items.map((item, i) => `
+      <div class="outbox-item">
+        <div class="outbox-meta">${new Date(item.queuedAt).toLocaleString()} — ${item.sheetName || "Sheet1"} (${item.payload?.title || "entry"})</div>
+        <div class="outbox-actions">
+          <button type="button" onclick="window.__retryOutboxItem(${i})">Retry</button>
+          <button type="button" onclick="window.__removeOutboxItem(${i})">Remove</button>
+        </div>
+      </div>
+    `).join("");
+  }
+  window.__retryOutboxItem = async (index) => {
+    const items = getOutbox();
+    const item = items[index];
+    if (!item) return;
+    try {
+      await postEntry(item.sheetId, item.sheetName, item.payload);
+      items.splice(index, 1);
+      saveOutbox(items);
+      showToast("Queued entry synced successfully.", "ok");
+    } catch (err) {
+      showToast("Retry failed: " + (err.message || "Unknown error"), "error");
+    }
+  };
+  window.__removeOutboxItem = (index) => {
+    const items = getOutbox();
+    items.splice(index, 1);
+    saveOutbox(items);
+    showToast("Entry removed from queue.", "ok");
+  };
   // Shared backend that writes to Google Sheets, and the service account email
   // that each user's sheet must be shared with (as an Editor). Set these once.
   const BACKEND_URL = "https://qr-scout-online.onrender.com/api/sync-sheet";
@@ -783,8 +847,8 @@
       showScoutPage();
     } else if (hash === "#/feedback") {
       showFeedback();
-    } else if (hash === "#/app" || hash === "#/download") {
-      showAppSection();
+    } else if (hash === "#/update" || hash === "#/download") {
+      showUpdateSection();
     } else {
       showHome();
     }
@@ -795,7 +859,7 @@
     $("scoutingPage").classList.add("hidden");
     $("howToUseSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("appSection").classList.add("hidden");
+    $("updateSection").classList.add("hidden");
     $("startGuideSection").classList.remove("hidden");
     setActiveTab("guide");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -806,7 +870,7 @@
     $("scoutingPage").classList.add("hidden");
     $("howToUseSection").classList.add("hidden");
     $("startGuideSection").classList.add("hidden");
-    $("appSection").classList.add("hidden");
+    $("updateSection").classList.add("hidden");
     $("feedbackSection").classList.remove("hidden");
     setActiveTab("feedback");
     if ((location.hash || "").toLowerCase() !== "#/feedback") {
@@ -818,7 +882,7 @@
   function showHome() {
     $("startGuideSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("appSection").classList.add("hidden");
+    $("updateSection").classList.add("hidden");
     $("welcomeSection").classList.remove("hidden");
     $("howToUseSection").classList.remove("hidden");
     $("scoutingPage").classList.add("hidden");
@@ -826,16 +890,16 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function showAppSection() {
+  function showUpdateSection() {
     $("welcomeSection").classList.add("hidden");
     $("scoutingPage").classList.add("hidden");
     $("howToUseSection").classList.add("hidden");
     $("startGuideSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("appSection").classList.remove("hidden");
-    setActiveTab("app");
-    if ((location.hash || "").toLowerCase() !== "#/app") {
-      history.replaceState(null, "", "#/app");
+    $("updateSection").classList.remove("hidden");
+    setActiveTab("update");
+    if ((location.hash || "").toLowerCase() !== "#/update") {
+      history.replaceState(null, "", "#/update");
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -854,7 +918,7 @@
     }
     $("startGuideSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("appSection").classList.add("hidden");
+    $("updateSection").classList.add("hidden");
     $("welcomeSection").classList.add("hidden");
     $("howToUseSection").classList.remove("hidden");
     $("scoutingPage").classList.remove("hidden");
@@ -876,7 +940,7 @@
     config = obj;
     $("welcomeSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("appSection").classList.add("hidden");
+    $("updateSection").classList.add("hidden");
     $("scoutingPage").classList.remove("hidden");
     renderForm();
     $("jsonEditor").value = JSON.stringify(config, null, 2);
@@ -956,6 +1020,30 @@
   $("syncChoiceBtn").addEventListener("click", syncToGoogleForm);
   $("applyGoogleFormBtn").addEventListener("click", saveGoogleFormSync);
   $("clearGoogleFormBtn").addEventListener("click", clearGoogleFormSync);
+  const retryOutboxBtn = document.getElementById("retryOutboxBtn");
+  if (retryOutboxBtn) retryOutboxBtn.addEventListener("click", async () => {
+    const items = getOutbox();
+    if (!items.length) return;
+    let synced = 0;
+    for (const item of items) {
+      try {
+        await postEntry(item.sheetId, item.sheetName, item.payload);
+        synced++;
+      } catch (e) { break; }
+    }
+    const remaining = getOutbox().length - synced;
+    const newList = getOutbox().slice(synced);
+    saveOutbox(newList);
+    showToast(synced > 0 ? `${synced} entr${synced === 1 ? "y" : "ies"} synced.` : "Nothing synced.", synced > 0 ? "ok" : "error");
+    renderOutboxPanel();
+  });
+  const clearOutboxBtn = document.getElementById("clearOutboxBtn");
+  if (clearOutboxBtn) clearOutboxBtn.addEventListener("click", () => {
+    if (confirm("Clear all queued entries? This cannot be undone.")) {
+      saveOutbox([]);
+      showToast("Queue cleared.", "ok");
+    }
+  });
   $("toggleGoogleFormBtn").addEventListener("click", () => {
     const panel = $("googleFormSyncPanel");
     const collapsed = panel.classList.toggle("collapsed");
@@ -968,7 +1056,7 @@
   $("navScoutBtn").addEventListener("click", showScoutPage);
   $("navGuideBtn").addEventListener("click", showStartGuide);
   $("navFeedbackBtn").addEventListener("click", showFeedback);
-  $("navDownloadBtn").addEventListener("click", showAppSection);
+  $("navUpdateBtn").addEventListener("click", showUpdateSection);
 
 
   // PWA "Install app" support (Chrome/Edge/Android): kept for browsers that
@@ -995,10 +1083,67 @@
     if (pwaHint) pwaHint.textContent = "You're running the installed app \u2014 nice!";
   }
   window.addEventListener("hashchange", route);
-  window.addEventListener("online", () => { flushOutbox(); });
+  window.addEventListener("online", () => { flushOutbox(); updateConnectionIndicator(); });
+  window.addEventListener("offline", () => { updateConnectionIndicator(); });
+  // Keyboard shortcuts
+  document.addEventListener("keydown", (e) => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+    if (e.key === "c" && !e.ctrlKey && !e.metaKey) { e.preventDefault(); document.getElementById("commitBtn")?.click(); }
+    if (e.key === "r" && !e.ctrlKey && !e.metaKey) { e.preventDefault(); document.getElementById("resetBtn")?.click(); }
+  });
   updateOutboxBadge();
+  updateConnectionIndicator();
 
-  // Feedback form: name/team/email optional, feedback required. The backend
+  // Update checker
+  const APP_VERSION = "1.0.0";
+  const GITHUB_REPO = "Home-Grown-Code/QR-Scout-Online";
+  const RELEASES_API = "https://api.github.com/repos/" + GITHUB_REPO + "/releases/latest";
+  function normalizeVersion(v) { return String(v).replace(/^v/i, ""); }
+  function versionNewer(latest, current) {
+    const a = latest.split(".").map(Number);
+    const b = current.split(".").map(Number);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+      if ((a[i] || 0) > (b[i] || 0)) return true;
+      if ((a[i] || 0) < (b[i] || 0)) return false;
+    }
+    return false;
+  }
+  async function checkForUpdates() {
+    const btn = document.getElementById("checkUpdatesBtn");
+    if (btn) btn.disabled = true;
+    const status = document.getElementById("updateStatus");
+    if (status) status.textContent = "Checking GitHub for the latest release...";
+    try {
+      const res = await fetch(RELEASES_API, { headers: { Accept: "application/vnd.github+json" } });
+      if (!res.ok) throw new Error("GitHub responded " + res.status);
+      const release = await res.json();
+      const latest = release.tag_name || "";
+      const published = release.published_at ? new Date(release.published_at).toLocaleDateString() : "";
+      const currentEl = document.getElementById("currentVersion");
+      const latestEl = document.getElementById("latestVersion");
+      if (currentEl) currentEl.textContent = "v" + APP_VERSION;
+      if (latestEl) latestEl.textContent = latest ? normalizeVersion(latest) : "unknown";
+      if (latest && versionNewer(normalizeVersion(latest), APP_VERSION)) {
+        if (status) status.textContent = "A newer version is available: " + latest + (published ? " (released " + published + ")" : "") + ". Open the releases page to download it.";
+        if (status) status.className = "status ok";
+      } else if (latest) {
+        if (status) status.textContent = "You're up to date — latest release is " + latest + (published ? " (" + published + ")" : "") + ".";
+        if (status) status.className = "status ok";
+      } else {
+        if (status) status.textContent = "No published releases found yet. Check back after the next tagged build.";
+        if (status) status.className = "status error";
+      }
+    } catch (err) {
+      if (status) status.textContent = "Couldn't reach GitHub to check for updates (" + err.message + "). You need an internet connection for this.";
+      if (status) status.className = "status error";
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+  const checkUpdatesBtn = document.getElementById("checkUpdatesBtn");
+  if (checkUpdatesBtn) checkUpdatesBtn.addEventListener("click", checkForUpdates);
+  const currentVersionEl = document.getElementById("currentVersion");
+  if (currentVersionEl) currentVersionEl.textContent = "v" + APP_VERSION;
   // saves the row to the owner's Google Sheet; the browser then emails the
   // owner through FormSubmit - their free plan blocks server-side calls from
   // cloud hosts, but browser posts from this page are fully supported. The

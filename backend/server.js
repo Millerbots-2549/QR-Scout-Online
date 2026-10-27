@@ -14,7 +14,22 @@ const PORT = process.env.PORT || 3001;
 // Compression for smaller, faster responses (text/JSON API bodies).
 app.use(require('compression')());
 
-app.use(cors({ origin: true, credentials: true }));
+const ALLOWED_ORIGINS = [
+  'https://home-grown-code.github.io',
+  'https://millerbots-2549.github.io',
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5000'
+];
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    if (ALLOWED_ORIGINS.includes(origin) || /\.github\.io$/i.test(origin)) return cb(null, true);
+    return cb(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 
 // Request timeout middleware — prevents slow Google API calls from holding
@@ -173,8 +188,14 @@ async function logSubmissionToMaster(sheets, source, details) {
 const STARTED_AT = new Date().toISOString();
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true, status: 'backend running', startedAt: STARTED_AT });
-});
+    res.json({
+      ok: true,
+      status: 'backend running',
+      startedAt: STARTED_AT,
+      uptime: Math.floor(process.uptime()),
+      version: require('../package.json').version || '1.0.0'
+    });
+  });
 
 app.post('/api/sync-sheet', async (req, res) => {
   try {
@@ -190,9 +211,16 @@ app.post('/api/sync-sheet', async (req, res) => {
     const sheetId = payload.sheetId || process.env.GOOGLE_SHEET_ID;
     const sheetName = payload.sheetName || process.env.SHEET_NAME || 'Scouting';
     const startColumn = (payload.startColumn || 'A').toUpperCase();
+    if (!/^[A-Z]{1,3}$/.test(startColumn)) {
+      return res.status(400).json({ ok: false, error: 'Start column must be 1-3 letters (A, B, ..., Z, AA, etc.).' });
+    }
 
     if (!sheetId) {
       return res.status(400).json({ ok: false, error: 'Missing sheetId.' });
+    }
+    // Basic sheet ID validation (Google Sheet IDs are alphanumeric with hyphens/underscores)
+    if (!/^[a-zA-Z0-9_-]{20,60}$/.test(sheetId)) {
+      return res.status(400).json({ ok: false, error: 'Invalid sheet ID format. Check the Sheet ID from your Google Sheet URL.' });
     }
 
     const sheets = await getSheetsClient();
