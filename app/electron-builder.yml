@@ -9,9 +9,10 @@ directories:
 files:
   - main.js
   - package.json
-  - index.html
-  - qrcode.min.js
-  - assets/**
+  - ../index.html
+  - ../manifest.webmanifest
+  - ../sw.js
+  - ../assets/**
 win:
   target:
     - nsis
