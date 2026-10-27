@@ -96,7 +96,7 @@
         <a id="navScoutBtn" href="#/scout" class="tab-btn">Scout</a>
         <a id="navGuideBtn" href="#/start-guide" class="tab-btn">Start guide</a>
         <a id="navFeedbackBtn" href="#/feedback" class="tab-btn">Feedback</a>
-        <a id="navUpdateBtn" href="#/update" class="tab-btn">Update</a>
+        <a id="navDownloadBtn" href="#/app" class="tab-btn">App</a>
       </nav>
     </div>
   </header>
@@ -292,32 +292,8 @@
     </form>
   </section>
 
-  <section id="updateSection" class="panel app-panel hidden" aria-label="Check for updates">
-    <div class="eyebrow">Updates</div>
-    <h2>Check for updates</h2>
-    <p>QR Scout Online is delivered from GitHub Releases. Tap the button below to check if a newer version is available.</p>
+  <section id="appSection" class="panel app-panel hidden" aria-label="Download the app">
 
-    <div class="version-row" style="display:flex;flex-wrap:wrap;gap:24px;margin-bottom:14px;">
-      <div class="version-item" style="display:flex;flex-direction:column;gap:4px;">
-        <span class="version-label" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Current version</span>
-        <span class="version-value" id="currentVersion" style="font-size:1.3rem;font-weight:800;">v1.0.0</span>
-      </div>
-      <div class="version-item" style="display:flex;flex-direction:column;gap:4px;">
-        <span class="version-label" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Latest release</span>
-        <span class="version-value" id="latestVersion" style="font-size:1.3rem;font-weight:800;">—</span>
-      </div>
-    </div>
-
-    <div class="update-check" style="padding:16px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.02);">
-      <div class="actions" style="margin-bottom:12px;">
-        <button id="checkUpdatesBtn" type="button" class="primary">Check for updates</button>
-        <a class="button-link" id="releasesLink" href="https://github.com/Home-Grown-Code/QR-Scout-Online/releases/latest" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;padding:12px 18px;border-radius:10px;border:1px solid var(--border);color:var(--text);text-decoration:none;font-weight:700;">Open releases page</a>
-      </div>
-      <div id="updateStatus" class="status">Tap "Check for updates" to look up the latest GitHub release.</div>
-    </div>
-
-    <p class="hint" style="margin-top:16px;">Desktop and mobile installers are available on the GitHub Releases page. The web version always runs the latest deployed code.</p>
-  </section>
     <div class="eyebrow">App</div>
     <h2>Download QR Scout — desktop apps &amp; installable web app</h2>
     <p>Pick your platform. The desktop apps open QR Scout Online in its own window. The desktop and mobile apps also include an <strong>Update</strong> tab that checks GitHub for the latest release.</p>

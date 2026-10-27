@@ -847,8 +847,8 @@
       showScoutPage();
     } else if (hash === "#/feedback") {
       showFeedback();
-    } else if (hash === "#/update" || hash === "#/download") {
-      showUpdateSection();
+    } else if (hash === "#/app" || hash === "#/download") {
+      showAppSection();
     } else {
       showHome();
     }
@@ -859,7 +859,7 @@
     $("scoutingPage").classList.add("hidden");
     $("howToUseSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("updateSection").classList.add("hidden");
+    $("appSection").classList.add("hidden");
     $("startGuideSection").classList.remove("hidden");
     setActiveTab("guide");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -870,7 +870,7 @@
     $("scoutingPage").classList.add("hidden");
     $("howToUseSection").classList.add("hidden");
     $("startGuideSection").classList.add("hidden");
-    $("updateSection").classList.add("hidden");
+    $("appSection").classList.add("hidden");
     $("feedbackSection").classList.remove("hidden");
     setActiveTab("feedback");
     if ((location.hash || "").toLowerCase() !== "#/feedback") {
@@ -882,7 +882,7 @@
   function showHome() {
     $("startGuideSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("updateSection").classList.add("hidden");
+    $("appSection").classList.add("hidden");
     $("welcomeSection").classList.remove("hidden");
     $("howToUseSection").classList.remove("hidden");
     $("scoutingPage").classList.add("hidden");
@@ -890,16 +890,16 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function showUpdateSection() {
+  function showAppSection() {
     $("welcomeSection").classList.add("hidden");
     $("scoutingPage").classList.add("hidden");
     $("howToUseSection").classList.add("hidden");
     $("startGuideSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("updateSection").classList.remove("hidden");
-    setActiveTab("update");
-    if ((location.hash || "").toLowerCase() !== "#/update") {
-      history.replaceState(null, "", "#/update");
+    $("appSection").classList.remove("hidden");
+    setActiveTab("app");
+    if ((location.hash || "").toLowerCase() !== "#/app") {
+      history.replaceState(null, "", "#/app");
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -918,7 +918,7 @@
     }
     $("startGuideSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("updateSection").classList.add("hidden");
+    $("appSection").classList.add("hidden");
     $("welcomeSection").classList.add("hidden");
     $("howToUseSection").classList.remove("hidden");
     $("scoutingPage").classList.remove("hidden");
@@ -940,7 +940,7 @@
     config = obj;
     $("welcomeSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
-    $("updateSection").classList.add("hidden");
+    $("appSection").classList.add("hidden");
     $("scoutingPage").classList.remove("hidden");
     renderForm();
     $("jsonEditor").value = JSON.stringify(config, null, 2);
@@ -1056,7 +1056,7 @@
   $("navScoutBtn").addEventListener("click", showScoutPage);
   $("navGuideBtn").addEventListener("click", showStartGuide);
   $("navFeedbackBtn").addEventListener("click", showFeedback);
-  $("navUpdateBtn").addEventListener("click", showUpdateSection);
+  $("navDownloadBtn").addEventListener("click", showAppSection);
 
 
   // PWA "Install app" support (Chrome/Edge/Android): kept for browsers that
@@ -1094,56 +1094,6 @@
   updateOutboxBadge();
   updateConnectionIndicator();
 
-  // Update checker
-  const APP_VERSION = "1.0.0";
-  const GITHUB_REPO = "Home-Grown-Code/QR-Scout-Online";
-  const RELEASES_API = "https://api.github.com/repos/" + GITHUB_REPO + "/releases/latest";
-  function normalizeVersion(v) { return String(v).replace(/^v/i, ""); }
-  function versionNewer(latest, current) {
-    const a = latest.split(".").map(Number);
-    const b = current.split(".").map(Number);
-    for (let i = 0; i < Math.max(a.length, b.length); i++) {
-      if ((a[i] || 0) > (b[i] || 0)) return true;
-      if ((a[i] || 0) < (b[i] || 0)) return false;
-    }
-    return false;
-  }
-  async function checkForUpdates() {
-    const btn = document.getElementById("checkUpdatesBtn");
-    if (btn) btn.disabled = true;
-    const status = document.getElementById("updateStatus");
-    if (status) status.textContent = "Checking GitHub for the latest release...";
-    try {
-      const res = await fetch(RELEASES_API, { headers: { Accept: "application/vnd.github+json" } });
-      if (!res.ok) throw new Error("GitHub responded " + res.status);
-      const release = await res.json();
-      const latest = release.tag_name || "";
-      const published = release.published_at ? new Date(release.published_at).toLocaleDateString() : "";
-      const currentEl = document.getElementById("currentVersion");
-      const latestEl = document.getElementById("latestVersion");
-      if (currentEl) currentEl.textContent = "v" + APP_VERSION;
-      if (latestEl) latestEl.textContent = latest ? normalizeVersion(latest) : "unknown";
-      if (latest && versionNewer(normalizeVersion(latest), APP_VERSION)) {
-        if (status) status.textContent = "A newer version is available: " + latest + (published ? " (released " + published + ")" : "") + ". Open the releases page to download it.";
-        if (status) status.className = "status ok";
-      } else if (latest) {
-        if (status) status.textContent = "You're up to date — latest release is " + latest + (published ? " (" + published + ")" : "") + ".";
-        if (status) status.className = "status ok";
-      } else {
-        if (status) status.textContent = "No published releases found yet. Check back after the next tagged build.";
-        if (status) status.className = "status error";
-      }
-    } catch (err) {
-      if (status) status.textContent = "Couldn't reach GitHub to check for updates (" + err.message + "). You need an internet connection for this.";
-      if (status) status.className = "status error";
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-  }
-  const checkUpdatesBtn = document.getElementById("checkUpdatesBtn");
-  if (checkUpdatesBtn) checkUpdatesBtn.addEventListener("click", checkForUpdates);
-  const currentVersionEl = document.getElementById("currentVersion");
-  if (currentVersionEl) currentVersionEl.textContent = "v" + APP_VERSION;
   // saves the row to the owner's Google Sheet; the browser then emails the
   // owner through FormSubmit - their free plan blocks server-side calls from
   // cloud hosts, but browser posts from this page are fully supported. The
