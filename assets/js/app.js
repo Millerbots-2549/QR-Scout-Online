@@ -615,7 +615,7 @@
       }
 
       const startColumn = ($("startColumn").value.trim() || "A").toUpperCase();
-      const rowValues = [payload.createdAt, ...Object.values(payload.data)];
+      const rowValues = Object.values(payload.data);
 
       const body = JSON.stringify({
         title: payload.title,
