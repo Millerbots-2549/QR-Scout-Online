@@ -1,19 +1,52 @@
-﻿const express = require('express');
+const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
 const { google } = require('googleapis');
 const nodemailer = require('nodemailer');
+const rateLimit = require('express-rate-limit');
 
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Compression for smaller, faster responses (text/JSON API bodies).
+app.use(require('compression')());
+
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
+// Request timeout middleware — prevents slow Google API calls from holding
+// connections open forever.
+app.use((req, res, next) => {
+  const timeoutMs = Number(process.env.REQUEST_TIMEOUT_MS) || 25000;
+  const timer = setTimeout(() => {
+    if (!res.headersSent) {
+      res.status(504).json({ ok: false, error: 'Request timed out.' });
+    }
+  }, timeoutMs);
+  res.on('finish', () => clearTimeout(timer));
+  res.on('close', () => clearTimeout(timer));
+  next();
+});
+
+// Rate limiting: 60 requests per minute per IP for sync-sheet/feedback,
+// 30 per minute for everything else. Prevents abuse and protects the
+// Google Sheets API quota.
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  message: { ok: false, error: 'Too many requests — please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use('/api/', apiLimiter);
+
 let sheetsClientPromise = null;
+let sheetMetadataCache = null;
+let sheetMetadataCacheTs = 0;
+const SHEET_METADATA_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 async function getSheetsClient() {
   // Build the auth client once and reuse it. GoogleAuth auto-refreshes its
@@ -42,6 +75,91 @@ async function getSheetsClient() {
   return sheetsClientPromise;
 }
 
+// Nodemailer transporter: create once, reuse across requests. nodemailer pools
+// connections internally, so recreating it per feedback POST wastes TCP/TLS
+// handshakes on every submission.
+let smtpTransporter = null;
+function getSmtpTransporter() {
+  if (!smtpTransporter) {
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = Number(process.env.SMTP_PORT) || 465;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+    if (smtpHost && smtpUser && smtpPass) {
+      smtpTransporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: { user: smtpUser, pass: smtpPass }
+      });
+    }
+  }
+  return smtpTransporter;
+}
+
+// Cache sheet metadata (tab existence) so repeated syncs/feedback don't
+// re-fetch the spreadsheet metadata from Google on every request.
+async function getSheetMetadata(sheets, sheetId) {
+  const now = Date.now();
+  if (sheetMetadataCache && sheetMetadataCache.sheetId === sheetId &&
+      now - sheetMetadataCacheTs < SHEET_METADATA_TTL_MS) {
+    return sheetMetadataCache.data;
+  }
+  const metadata = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  sheetMetadataCache = { sheetId, data: metadata.data };
+  sheetMetadataCacheTs = now;
+  return metadata.data;
+}
+
+// Every submission (scouting sync or feedback) is also logged to the owner's
+// master sheet with a timestamp, so there is one central record of all activity.
+const MASTER_SHEET_ID = "1n7MW_vDB0YjMaOsVXrfgkX3Q1RGJ1oYcQdsymsgveCE";
+const MASTER_SHEET_NAME = "Submissions";
+
+async function logSubmissionToMaster(sheets, source, details) {
+  if (!MASTER_SHEET_ID) return;
+  try {
+    const metadata = await getSheetMetadata(sheets, MASTER_SHEET_ID);
+    const exists = (metadata.sheets || []).some((s) => s.properties && s.properties.title === MASTER_SHEET_NAME);
+    if (!exists) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: MASTER_SHEET_ID,
+        requestBody: {
+          requests: [{
+            addSheet: {
+              properties: {
+                title: MASTER_SHEET_NAME,
+                sheetType: 'GRID',
+                gridProperties: { rowCount: 1000, columnCount: 20 }
+              }
+            }
+          }]
+        }
+      });
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: MASTER_SHEET_ID,
+        range: `${MASTER_SHEET_NAME}!A1`,
+        valueInputOption: 'RAW',
+        requestBody: {
+          values: [['Timestamp', 'Source', 'Details']]
+        }
+      });
+    }
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: MASTER_SHEET_ID,
+      range: `${MASTER_SHEET_NAME}!A1`,
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: {
+        values: [[new Date().toISOString(), source, JSON.stringify(details).slice(0, 1000)]]
+      }
+    });
+  } catch (err) {
+    // Never fail the user's request because the master log couldn't be written.
+    console.error('master submission log failed:', err);
+  }
+}
+
 const STARTED_AT = new Date().toISOString();
 
 app.get('/health', (req, res) => {
@@ -67,8 +185,8 @@ app.post('/api/sync-sheet', async (req, res) => {
     }
 
     const sheets = await getSheetsClient();
-    const metadata = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-    const exists = (metadata.data.sheets || []).some((sheet) => sheet.properties && sheet.properties.title === sheetName);
+    const metadata = await getSheetMetadata(sheets, sheetId);
+    const exists = (metadata.sheets || []).some((sheet) => sheet.properties && sheet.properties.title === sheetName);
 
     if (!exists) {
       await sheets.spreadsheets.batchUpdate({
@@ -85,6 +203,9 @@ app.post('/api/sync-sheet', async (req, res) => {
           }]
         }
       });
+      // Invalidate metadata cache since we just added a sheet.
+      sheetMetadataCache = null;
+      sheetMetadataCacheTs = 0;
     }
 
     await sheets.spreadsheets.values.append({
@@ -96,6 +217,9 @@ app.post('/api/sync-sheet', async (req, res) => {
         values: [row]
       }
     });
+
+    // Log every scouting sync to the master sheet with a timestamp.
+    await logSubmissionToMaster(sheets, 'scouting-sync', { sheetId, sheetName, rowCount: row.length });
 
     return res.json({
       ok: true,
@@ -155,8 +279,8 @@ app.post('/api/feedback', async (req, res) => {
     if (sheetId) {
       try {
         const sheets = await getSheetsClient();
-        const metadata = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-        const exists = (metadata.data.sheets || []).some((sheet) => sheet.properties && sheet.properties.title === sheetName);
+        const metadata = await getSheetMetadata(sheets, sheetId);
+        const exists = (metadata.sheets || []).some((sheet) => sheet.properties && sheet.properties.title === sheetName);
 
         if (!exists) {
           await sheets.spreadsheets.batchUpdate({
@@ -181,6 +305,9 @@ app.post('/api/feedback', async (req, res) => {
               values: [['Timestamp', 'Name', 'Team number', 'Email', 'Feedback']]
             }
           });
+          // Invalidate metadata cache since we just added a sheet.
+          sheetMetadataCache = null;
+          sheetMetadataCacheTs = 0;
         }
 
         await sheets.spreadsheets.values.append({
@@ -193,6 +320,9 @@ app.post('/api/feedback', async (req, res) => {
           }
         });
         savedToSheet = true;
+
+        // Log every feedback submission to the master sheet with a timestamp.
+        await logSubmissionToMaster(sheets, 'feedback', { name, teamNumber, email, feedback });
       } catch (sheetError) {
         console.error('feedback sheet append failed:', sheetError);
         problems.push(`sheet: ${sheetError && sheetError.message ? sheetError.message : String(sheetError)}`);
@@ -213,24 +343,18 @@ app.post('/api/feedback', async (req, res) => {
       feedback
     };
 
+    const text = [
+      `Name: ${emailFields.name}`,
+      `Team number: ${emailFields.teamNumber}`,
+      `Email: ${emailFields.email}`,
+      '',
+      'Feedback:',
+      feedback
+    ].join('\n');
+
     try {
-      if (smtpHost && smtpUser && smtpPass) {
-        const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port: smtpPort,
-          secure: smtpPort === 465,
-          auth: { user: smtpUser, pass: smtpPass }
-        });
-
-        const text = [
-          `Name: ${emailFields.name}`,
-          `Team number: ${emailFields.teamNumber}`,
-          `Email: ${emailFields.email}`,
-          '',
-          'Feedback:',
-          feedback
-        ].join('\n');
-
+      const transporter = getSmtpTransporter();
+      if (transporter) {
         await transporter.sendMail({
           from: `"QR Scout Feedback" <${smtpUser}>`,
           to: toEmail,

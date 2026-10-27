@@ -1,6 +1,6 @@
 /* QR Scout service worker: cache-first app shell so Chrome can offer
    "Install QR Scout" (PWA install requires a service worker + manifest). */
-const CACHE = "qrscout-shell-v4";
+const CACHE = "qrscout-shell-v5";
 const SHELL = [
   "./",
   "./index.html",
@@ -10,6 +10,16 @@ const SHELL = [
   "./assets/js/qrcode.min.js",
   "./assets/images/millerbot-orange.png"
 ];
+
+// Network timeout for fetch requests inside the SW so a dead network
+// doesn't stall the install/activate flow.
+function withTimeout(promise, ms) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error("sw-timeout")), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -37,7 +47,7 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
+      withTimeout(fetch(request), 10000)
         .then((response) => {
           const copy = response.clone();
           caches.open(CACHE).then((cache) => cache.put("./index.html", copy));
@@ -50,7 +60,7 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     caches.match(request).then((hit) => {
-      const network = fetch(request)
+      const network = withTimeout(fetch(request), 10000)
         .then((response) => {
           if (response && response.ok) {
             const copy = response.clone();

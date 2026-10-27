@@ -2,11 +2,18 @@
   // Resolve an element by id. If it's missing (e.g. a stale index.html served
   // against this script), return a harmless no-op stub instead of null so that
   // chained calls like $(el).classList.add(...) never throw and break routing.
+  // Lookups are cached so repeated $(id) calls don't re-query the DOM or rebuild
+  // the Proxy stub every time.
+  const elementCache = new Map();
   const $ = (id) => {
+    if (elementCache.has(id)) return elementCache.get(id);
     const el = document.getElementById(id);
-    if (el) return el;
+    if (el) {
+      elementCache.set(id, el);
+      return el;
+    }
     const noop = () => {};
-    return new Proxy({}, {
+    const stub = new Proxy({}, {
       get: (_t, prop) => {
         if (prop === "classList") return { add: noop, remove: noop, toggle: () => false, contains: () => false };
         if (prop === "addEventListener" || prop === "removeEventListener" || prop === "appendChild" || prop === "remove" || prop === "focus" || prop === "click" || prop === "scrollIntoView" || prop === "setSelectionRange") return noop;
@@ -21,6 +28,8 @@
       set: (_t, prop, value) => { _t[prop] = value; return true; },
       has: (_t, prop) => prop in _t
     });
+    elementCache.set(id, stub);
+    return stub;
   };
   const STORAGE_KEY = "qrscoutSavedState";
   // Offline outbox: entries queued while the device has no connection, synced
@@ -54,12 +63,22 @@
     });
     saveOutbox(list);
   }
+  // Fetch with a timeout so a slow/dead backend doesn't hang the UI forever.
+  function fetchWithTimeout(url, opts, ms) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+    return fetch(url, { ...opts, signal: controller.signal })
+      .then((res) => { clearTimeout(timer); return res; })
+      .catch((err) => { clearTimeout(timer); throw err; });
+  }
+
+  const FETCH_TIMEOUT_MS = 20000;
   function postEntry(sheetId, sheetName, payload) {
-    return fetch(BACKEND_URL, {
+    return fetchWithTimeout(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sheetId, sheetName, data: payload.data, row: payload.row })
-    }).then(async (res) => {
+    }, FETCH_TIMEOUT_MS).then(async (res) => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) {
         const raw = data && (data.error || data.status);
@@ -602,7 +621,7 @@
 
       setModalStatus("Sending scouting data to the script...", false, true);
 
-      fetch(scriptUrl, {
+      fetchWithTimeout(scriptUrl, {
         method: "POST",
         mode: "cors",
         cache: "no-store",
@@ -610,7 +629,7 @@
           "Content-Type": "application/json"
         },
         body
-      }).then(async (res) => {
+      }, FETCH_TIMEOUT_MS).then(async (res) => {
         const responseText = await res.text();
         let parsed = null;
         try {
@@ -978,7 +997,7 @@
   const FEEDBACK_OWNER_EMAIL = ["rileyhh2901", "@", "gmail.com"].join("");
   function emailFeedbackToOwner(fields) {
     const subject = `QR Scout feedback${fields.teamNumber ? ` \u2014 team ${fields.teamNumber}` : ""}${fields.name ? ` from ${fields.name}` : ""}`;
-    return fetch(`https://formsubmit.co/ajax/${encodeURIComponent(FEEDBACK_OWNER_EMAIL)}`, {
+    return fetchWithTimeout(`https://formsubmit.co/ajax/${encodeURIComponent(FEEDBACK_OWNER_EMAIL)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
@@ -991,7 +1010,7 @@
         email: fields.email || "(not provided)",
         message: fields.feedback
       })
-    });
+    }, FETCH_TIMEOUT_MS);
   }
   $("feedbackForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1008,12 +1027,12 @@
     submitBtn.disabled = true;
     setFeedbackStatus("Sending feedback...", false, true);
     try {
-      const res = await fetch(FEEDBACK_URL, {
+      const res = await fetchWithTimeout(FEEDBACK_URL, {
         method: "POST",
         mode: "cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, teamNumber, email, feedback: feedbackText, website: honeypot })
-      });
+      }, FETCH_TIMEOUT_MS);
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) {
         throw new Error(data.error || `Server responded with status ${res.status}.`);
