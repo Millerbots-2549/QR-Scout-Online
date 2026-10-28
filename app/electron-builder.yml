@@ -26,10 +26,9 @@ nsis:
   shortcutName: QR Scout
   installerIcon: ../assets/images/millerbot-orange.png
   uninstallerIcon: ../assets/images/millerbot-orange.png
-  license: ../LICENSE
   installerHeader: ../assets/images/millerbot-orange.png
   differentialPackage: true
-  include: assets/installer.nsh
+icon: ../assets/images/millerbot-orange.png
 mac:
   target:
     - dmg
@@ -45,6 +44,6 @@ linux:
   category: Utility
   maintainer: Team 2549 Millerbots <noreply@example.com>
   synopsis: QR Scout Online desktop shell
-extra:
-  icon: ../assets/images/millerbot-orange.png
-  shareable: true
+extraResources:
+  - from: ../assets/images/millerbot-orange.png
+    to: millerbot-orange.png
