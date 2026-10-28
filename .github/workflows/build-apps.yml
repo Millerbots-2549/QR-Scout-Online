@@ -132,9 +132,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Add Android platform
-        run: npx cap add android
-
       - name: Sync Capacitor shell
         run: npx cap sync android
 
