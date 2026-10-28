@@ -135,9 +135,6 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
 
-      - name: Generate app icons + splash from resources/
-        run: npx capacitor-assets generate --android
-
       - name: Sync Capacitor shell
         run: npx cap sync android
 
@@ -175,9 +172,6 @@ jobs:
 
       - name: Add iOS platform
         run: npx cap add ios
-
-      - name: Generate app icons + splash from resources/
-        run: npx capacitor-assets generate --ios
 
       - name: Sync Capacitor shell
         run: npx cap sync ios
