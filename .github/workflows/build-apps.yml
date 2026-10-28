@@ -206,7 +206,7 @@ jobs:
   release:
     name: Publish GitHub release
     if: github.ref_type == 'tag'
-    needs: [build, mobile-android, mobile-ios]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
