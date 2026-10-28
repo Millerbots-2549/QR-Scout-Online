@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Primary SEO -->
+  <title>2549 Millerbots Scouting — QR Scout Online | FRC Match Data to Sheets</title>
+  <meta name="description" content="QR Scout Online is the official FRC scouting app for Team 2549 Millerbots. Free scouting app that collects match data with QR codes and syncs directly to your Google Sheets. Perfect for FRC teams 2549 and beyond.">
+  <meta name="keywords" content="QR Scout Online, 2549 Millerbots, FRC scouting app, Team 2549 scouting, Millerbots scouting, QR code scouting, FRC match data, Google Sheets scouting, robotics app, FRC 2549, QR Scout sheets, scouting to Google Sheets, FIRST Robotics scouting, FRC scouting software, match data collection, QR Scout">
+  <meta name="author" content="2549 Millerbots — QR Scout Online">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0d1b2a">
+  
+  <!-- Google verification and search engine optimization -->
+  <meta name="google-site-verification" content="placeholder_verification_code">
+  <meta name="yandex-verification" content="placeholder_yandex_code">
+  
+  <!-- Local business schema for Google Maps -->
+  <meta name="geo.region" content="US-VA">
+  <meta name="geo.placename" content="Richmond">
+  <meta name="geo.position" content="37.5407;-77.4360">
+  <meta name="ICBM" content="37.5407, -77.4360">
+  <link rel="canonical" href="https://millerbots-2549.github.io/QR-Scout-Online/">
+
+  <!-- Open Graph (Facebook, LinkedIn, Discord, etc.) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="2549 Millerbots Scouting — QR Scout Online">
+  <meta property="og:title" content="2549 Millerbots Scouting — QR Scout Online | FRC Match Data to Sheets">
+  <meta property="og:description" content="Free FRC scouting app for Team 2549 Millerbots and any FIRST Robotics team. Collect match scouting data with QR codes and sync it straight to your own Google Sheets.">
+  <meta property="og:url" content="https://millerbots-2549.github.io/QR-Scout-Online/">
+  <meta property="og:image" content="https://millerbots-2549.github.io/QR-Scout-Online/assets/images/millerbot-orange.png">
+  <meta property="og:image:secure_url" content="https://millerbots-2549.github.io/QR-Scout-Online/assets/images/millerbot-orange.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:website_name" content="QR Scout Online">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2549 Millerbots Scouting — QR Scout Online | FRC Match Data to Sheets">
+  <meta name="twitter:description" content="Free FRC scouting app for Team 2549 Millerbots. Collect match scouting data with QR codes and sync it straight to your own Google Sheets.">
+  <meta name="twitter:image" content="https://millerbots-2549.github.io/QR-Scout-Online/assets/images/millerbot-orange.png">
+
+  <link rel="preload" as="style" href="assets/css/styles.css">
+  <link rel="preload" as="script" href="assets/js/qrcode.min.js">
+  <link rel="preload" as="script" href="assets/js/app.js">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/images/millerbot-orange.png">
+  <link rel="apple-touch-icon" href="assets/images/millerbot-orange.png">
+  <link rel="preconnect" href="https://qr-scout-online.onrender.com">
+  <link rel="preconnect" href="https://formsubmit.co">
+  <link rel="dns-prefetch" href="https://sheets.googleapis.com">
+
+  <!-- Structured data (schema.org) so Google can understand and feature the site -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "2549 Millerbots Scouting — QR Scout Online",
+    "alternateName": ["QR Scout", "QR-Scout-Online", "FRC Scouting", "2549 Scouting", "2549 Millerbots", "Millerbots Scouting", "Millerbots 2549", "Team 2549", "QR Sheets", "Scouting QR", "QR Scouting", "QR Scout Sheets"],
+    "keywords": "2549, Millerbots, 2549 Millerbots, Team 2549, 2549 scouting, Millerbots scouting, 2549 Millerbots scouting, QR scout, QR scouting, QR scout online, QR sheets, QR scout sheets, scouting QR, scouting sheets, scouting to Google Sheets, FRC scouting, FRC scouting app, FRC match scouting, FIRST Robotics scouting, robotics scouting, match scouting",
+    "url": "https://millerbots-2549.github.io/QR-Scout-Online/",
+    "logo": "https://millerbots-2549.github.io/QR-Scout-Online/assets/images/millerbot-orange.png",
+    "description": "2549 Millerbots Scouting (QR Scout Online) is a free FRC scouting app for Team 2549 and any FIRST Robotics team. Collect match scouting data with QR codes and sync it straight into your own Google Sheets.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any modern web browser",
+    "isAccessibleForFree": true,
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Collect FRC match scouting data on any device",
+      "Sync entries straight into your own Google Sheet",
+      "Generate QR codes for offline data backup",
+      "No backend or hosting setup required"
+    ],
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "FIRST Robotics Competition (FRC) teams and scouts"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div id="brandHomeBtn" class="brand-block" role="button" tabindex="0" aria-label="Return to the welcome screen">
+        <h1>2549 Millerbots Scouting</h1>
+      </div>
+      <nav class="tabs" aria-label="Pages">
+        <a id="navAppBtn" href="#/home" class="tab-btn active">Home</a>
+        <a id="navScoutBtn" href="#/scout" class="tab-btn">Scout</a>
+        <a id="navGuideBtn" href="#/start-guide" class="tab-btn">Start guide</a>
+        <a id="navFeedbackBtn" href="#/feedback" class="tab-btn">Feedback</a>
+        <a id="navDownloadBtn" href="#/app" class="tab-btn">Apps</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="single-page">
+    <section id="welcomeSection" class="panel welcome-panel">
+      <div class="eyebrow">Team 2549 Millerbots · QR Scout Online</div>
+      <h2>Welcome to 2549 Millerbots scouting — QR sheets to Google Sheets</h2>
+      <p>Import your config below to start collecting 2549 Millerbots match scouting data — QR Scout Online saves every entry so you can sync scouting sheets into your own Google Sheet.</p>
+
+      <div class="upload-box">
+        <label for="configFile">Import config</label>
+        <input id="configFile" type="file" accept=".json,application/json">
+        <button id="loadExample" type="button" class="secondary">Load sample</button>
+      </div>
+
+      <div id="configStatus" class="status">No configuration loaded yet.</div>
+    </section>
+
+    <section id="scoutingPage" class="hidden" aria-label="Scouting form">
+      <div class="panel form-panel">
+        <div id="formArea"></div>
+
+        <div class="actions">
+          <button id="commitBtn" type="button" class="primary">Commit</button>
+          <button id="toggleGoogleFormBtn" type="button">Show sync</button>
+          <button id="resetBtn" type="button">Reset fields</button>
+          <button id="toggleConfigManagerBtn" type="button">Edit JSON</button>
+        </div>
+      </div>
+
+      <section class="panel config-manager collapsed" id="configManager">
+        <h3>Configuration Manager</h3>
+        <p>Edit the current JSON, load a different file, or download a copy.</p>
+        <label for="jsonEditor">Current JSON configuration</label>
+        <textarea id="jsonEditor" spellcheck="false" placeholder="Load a JSON configuration to edit it here..."></textarea>
+
+        <div class="manager-actions">
+          <button id="applyJsonBtn" type="button" class="primary">Apply JSON edits</button>
+          <button id="uploadNewJsonBtn" type="button">Upload new JSON</button>
+          <button id="downloadJsonBtn" type="button">Download current JSON</button>
+          <button id="clearJsonBtn" type="button">Clear JSON</button>
+          <input id="managerJsonFile" type="file" accept=".json,application/json" hidden>
+        </div>
+
+        <div id="managerStatus" class="status" style="margin-top:12px;">Load a configuration to enable editing and downloading.</div>
+      </section>
+
+      <section class="panel sync-panel collapsed" id="googleFormSyncPanel">
+        <h3>Sync settings</h3>
+        <p>Enter the Google Sheet you want your scouting data sent to. First <strong>Share</strong> that sheet with our service account email as an <strong>Editor</strong> (see the Start guide), then enter its ID below.</p>
+
+        <div class="sync-grid">
+          <div class="field">
+            <label for="googleSheetId">Google Sheet ID</label>
+            <input id="googleSheetId" type="text" value="1n7MW_vDB0YjMaOsVXrfgkX3Q1RGJ1oYcQdsymsgveCE" placeholder="Paste the ID from your sheet URL (between /d/ and /edit)">
+          </div>
+          <div class="field">
+            <label for="sheetTabName">Tab name (optional)</label>
+            <input id="sheetTabName" type="text" placeholder="Scouting or leave blank for Sheet1">
+          </div>
+          <div class="field">
+            <label for="startColumn">Start column (letter)</label>
+            <input id="startColumn" type="text" value="A" maxlength="3" placeholder="A" title="Column letter where data starts, e.g. A, B, C">
+          </div>
+        </div>
+
+        <div class="sync-actions">
+          <button id="applyGoogleFormBtn" type="button" class="primary">Save sheet</button>
+          <button id="clearGoogleFormBtn" type="button">Clear sheet</button>
+        </div>
+
+        <div id="googleFormStatus" class="status" style="margin-top:12px;">No sheet configured yet.</div>
+        <div id="outboxPanel" class="hidden" style="margin-top:12px;">
+          <h4 style="margin:0 0 8px;">Offline queue (<span id="outboxCount">0</span>)</h4>
+          <div id="outboxList"></div>
+          <div class="sync-actions" style="margin-top:8px;">
+            <button id="retryOutboxBtn" type="button" class="primary">Retry all</button>
+            <button id="clearOutboxBtn" type="button">Clear queue</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section id="howToUseSection" class="panel simple-help">
+      <h3>How to use QR Scout Online</h3>
+      <ol>
+        <li>Import your scouting config (try <strong>Load sample</strong> for the 2549 Millerbots example).</li>
+        <li>Fill in the match details.</li>
+        <li>Tap Commit to save, download, or sync your scouting sheets to Google Sheets.</li>
+        <li>Use the QR code backup to keep a copy of your scouting data anywhere.</li>
+      </ol>
+    </section>
+  <section id="startGuideSection" class="panel start-guide hidden" aria-label="Start guide">
+    <div class="eyebrow">QR Scout Online setup</div>
+    <h2>Start guide — sync scouting data to Google Sheets</h2>
+    <p>Want to send QR Scout match data — like <strong>2549 Millerbots</strong> scouting — into <strong>your own Google Sheet</strong> without hosting anything yourself? You don't need to set up a backend or GitHub Pages. Just (1) create a Google Sheet, (2) share it with our service account so the app is allowed to write to it, and (3) enter your Sheet ID and a tab name in the app. After that, every entry you commit lands in <strong>your own</strong> spreadsheet.</p>
+
+    <h3 class="guide-heading">Part 1: Create your Google Sheet</h3>
+    <div class="guide-steps">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>Make a new Google Sheet</h3>
+        <p>Go to <code>sheets.new</code> (or Google Drive &rarr; New &rarr; Google Sheets) and create a blank spreadsheet to hold your scouting data.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>Copy the Sheet ID</h3>
+        <p>Look at the sheet's address bar: <code>https://docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</code>. Copy the long ID between <code>/d/</code> and <code>/edit</code> - you'll paste it into the app in Part 3.</p>
+      </div>
+    </div>
+
+    <h3 class="guide-heading">Part 2: Share it with our service account</h3>
+    <div class="guide-steps">
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>Open Share</h3>
+        <p>In your sheet, click the <strong>Share</strong> button in the top-right corner.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <h3>Add the service account email</h3>
+        <p>Paste this email into the &quot;Add people and groups&quot; box, set its access to <strong>Editor</strong>, then click <strong>Send</strong> (you can untick &quot;Notify people&quot;):</p>
+        <pre><code id="serviceAccountEmail">(service email not set - ask the site owner)</code></pre>
+        <div class="callout">
+          <h3>Why this step matters</h3>
+          <p>This is what lets the website write rows into <strong>your</strong> sheet. Without it the app can't add any data and you'll see a permission error when you sync.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="guide-heading">Part 3: Enter it in the app and submit</h3>
+    <div class="guide-steps">
+      <div class="step-card">
+        <div class="step-number">5</div>
+        <h3>Load a config</h3>
+        <p>On the <strong>Home</strong> tab, click <strong>Import config</strong> to upload your own JSON, or <strong>Load sample</strong> to start from the example. This takes you to the <strong>Scout</strong> tab.</p>
+        <p class="guide-download"><button id="downloadExampleConfigBtn" type="button" class="secondary">Download example config (.json)</button></p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">6</div>
+        <h3>Save your sheet</h3>
+        <p>Click <strong>Show sync</strong>, paste your <strong>Google Sheet ID</strong>, optionally set a <strong>Tab name</strong>, then click <strong>Save sheet</strong>.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">7</div>
+        <h3>Commit and sync</h3>
+        <p>Fill out the form, click <strong>Commit</strong>, then choose <strong>Sync to Sheet</strong>. A new row appears in <strong>your own</strong> Google Sheet. You can also generate a QR code for an offline backup.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <h3>Troubleshooting</h3>
+      <ul>
+        <li><strong>Permission or 403 errors</strong> - the sheet was not shared with the service account email above as an <strong>Editor</strong>.</li>
+        <li><strong>Nothing happens / network error</strong> - make sure the site is open over <code>https://</code> or <code>http://</code>, not a local <code>file://</code> path.</li>
+        <li><strong>Wrong sheet or wrong tab</strong> - double-check the Sheet ID (it must be the part between <code>/d/</code> and <code>/edit</code>) and the tab name.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="feedbackSection" class="panel feedback-panel hidden" aria-label="Feedback">
+    <div class="eyebrow">Feedback</div>
+    <h2>Send feedback — bugs, ideas, questions</h2>
+    <p>Tell us what's working, what's broken, or what to improve. Only the feedback box is required; the other fields are optional (leave your email if you'd like a reply).</p>
+
+    <form id="feedbackForm">
+      <div class="field">
+        <label for="feedbackName">Name (optional)</label>
+        <input id="feedbackName" name="name" type="text" maxlength="100" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="feedbackTeam">Team number (optional)</label>
+        <input id="feedbackTeam" name="teamNumber" type="text" maxlength="20" placeholder="e.g. 2549" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="feedbackEmail">Email (optional)</label>
+        <input id="feedbackEmail" name="email" type="email" maxlength="200" placeholder="you@example.com — only used to reply" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="feedbackText">Feedback (required)</label>
+        <textarea id="feedbackText" name="feedback" required maxlength="5000" placeholder="Describe the bug, idea, or question..."></textarea>
+      </div>
+      <!-- Honeypot: hidden from humans, bots fill it in so we can drop their submission. -->
+      <div class="feedback-hp" aria-hidden="true">
+        <label for="feedbackWebsite">Website</label>
+        <input id="feedbackWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <div class="actions">
+        <button id="feedbackSubmitBtn" type="submit" class="primary">Send feedback</button>
+      </div>
+      <div id="feedbackStatus" class="status">Only the feedback box is required.</div>
+    </form>
+  </section>
+
+  <section id="appSection" class="panel app-panel hidden" aria-label="Download the app">
+
+    <div class="eyebrow">Apps</div>
+    <h2>Download QR Scout — desktop apps &amp; installable web app</h2>
+    <p>Pick your platform. The desktop apps open QR Scout Online in its own window. The desktop and mobile apps also include an <strong>Update</strong> tab that checks GitHub for the latest release.</p>
+
+    <div class="download-grid">
+      <a class="download-card" href="https://github.com/Millerbots-2549/QR-Scout-Online/releases/latest/download/QRScout-win-x64.exe">
+        <span class="download-name">Windows</span>
+        <small>64-bit Intel/AMD — installer (.exe)</small>
+      </a>
+      <a class="download-card" href="https://github.com/Millerbots-2549/QR-Scout-Online/releases/latest/download/QRScout-win-arm64.exe">
+        <span class="download-name">Windows on ARM</span>
+        <small>Snapdragon / ARM laptops — installer (.exe)</small>
+      </a>
+      <a class="download-card" href="https://github.com/Millerbots-2549/QR-Scout-Online/releases/latest/download/QRScout-mac-arm64.dmg">
+        <span class="download-name">Mac (Apple Silicon)</span>
+        <small>M1 / M2 / M3 / M4 — disk image (.dmg)</small>
+      </a>
+      <a class="download-card" href="https://github.com/Millerbots-2549/QR-Scout-Online/releases/latest/download/QRScout-mac-x64.dmg">
+        <span class="download-name">Mac (Intel)</span>
+        <small>2020 and earlier — disk image (.dmg)</small>
+      </a>
+      <a class="download-card" href="https://github.com/Millerbots-2549/QR-Scout-Online/releases/latest/download/QRScout-linux-x64.AppImage">
+        <span class="download-name">Linux (64-bit)</span>
+        <small>AppImage — chmod +x, then run</small>
+      </a>
+      <a class="download-card" href="https://github.com/Millerbots-2549/QR-Scout-Online/releases/latest/download/QRScout-linux-arm64.AppImage">
+        <span class="download-name">Linux ARM</span>
+        <small>Raspberry Pi / ARM boards — AppImage</small>
+      </a>
+      <a class="download-card" href="https://github.com/Millerbots-2549/QR-Scout-Online/releases/latest/download/QRScout-android.apk">
+        <span class="download-name">Android</span>
+        <small>Phone / tablet — app file (.apk, sideload)</small>
+      </a>
+      <a class="download-card" href="https://github.com/Millerbots-2549/QR-Scout-Online/releases/latest/download/QRScout-iphone.ipa">
+        <span class="download-name">iPhone</span>
+        <small>App file (.ipa, sideload via AltStore/Sideloadly)</small>
+      </a>
+    </div>
+
+    <p class="hint">These installers are not code-signed. On macOS, right-click the app and choose <strong>Open</strong> the first time. On Windows, choose <em>More info → Run anyway</em> if SmartScreen warns you.</p>
+  </section>
+
+  </main>
+
+  <div id="commitModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="commitTitle">
+    <div class="modal panel">
+      <button id="closeModalBtn" class="close-modal" type="button" aria-label="Close">�,</button>
+      <h3 id="commitTitle">Commit scouting data</h3>
+      <p class="hint">Choose what to do with the information you entered.</p>
+
+      <div class="choice-grid" id="choiceGrid">
+        <button id="qrChoiceBtn" type="button" class="primary choice-button">
+          <span>QR Code</span>
+          <small>Generate a QR code from this entry</small>
+        </button>
+        <button id="syncChoiceBtn" type="button" class="choice-button">
+          <span>Sync to Sheet</span>
+          <small>Send this entry to Google Sheets</small>
+        </button>
+      </div>
+
+      <div id="modalStatus" class="status hidden"></div>
+      <div id="modalQrBox" class="hidden"></div>
+
+      <div class="actions">
+        <button id="modalDownloadBtn" class="primary hidden" type="button">Download QR PNG</button>
+        <button id="modalBackBtn" class="secondary hidden" type="button">Back</button>
+        <button id="resetFormBtn" class="secondary" type="button">Reset Form</button>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="assets/js/qrcode.min.js"></script>
+<div id="toast-container"></div>
+
+  <script defer src="assets/js/app.js"></script>
+</body>
+</html>
+
+
+
+
