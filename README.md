@@ -93,12 +93,12 @@ The repository includes installable app shells:
 
 ## Useful files
 
-- `index.html` and `assets/` — website and its frontend code
-- `assets/js/app.js` — frontend logic; also holds `BACKEND_URL`, `FEEDBACK_URL`, and `SERVICE_EMAIL`
-- `backend/server.js` — API server and Google Sheets integration
-- `.env.example` — example backend configuration (no real credentials)
-- `app/` — Electron desktop app
-- `android/`, `mobile/`, and `capacitor.config.js` — Capacitor mobile app shells (iOS project generated in CI)
-- `sw.js` and `manifest.webmanifest` — PWA service worker and manifest
-- `.github/workflows/build-apps.yml` — app build workflow
-- `.github/workflows/pages.yml` — GitHub Pages deployment workflow
+- `index.html` and `assets/`  website and its frontend code
+- `assets/js/app.js`  frontend logic; also holds `BACKEND_URL`, `FEEDBACK_URL`, and `SERVICE_EMAIL`
+- `backend/server.js`  API server and Google Sheets integration
+- `.env.example`  example backend configuration (no real credentials)
+- `app/`  Electron desktop app
+- `android/`, `mobile/`, and `capacitor.config.js`  Capacitor mobile app shells (iOS project generated in CI)
+- `sw.js` and `manifest.webmanifest`  PWA service worker and manifest
+- `.github/workflows/build-apps.yml`  app build workflow
+- `.github/workflows/pages.yml`  GitHub Pages deployment workflow

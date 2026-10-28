@@ -155,7 +155,7 @@
     if (items.length === 0) return;
     list.innerHTML = items.map((item, i) => `
       <div class="outbox-item">
-        <div class="outbox-meta">${new Date(item.queuedAt).toLocaleString()} — ${item.sheetName || "Sheet1"} (${item.payload?.title || "entry"})</div>
+        <div class="outbox-meta">${new Date(item.queuedAt).toLocaleString()}  ${item.sheetName || "Sheet1"} (${item.payload?.title || "entry"})</div>
         <div class="outbox-actions">
           <button type="button" onclick="window.__retryOutboxItem(${i})">Retry</button>
           <button type="button" onclick="window.__removeOutboxItem(${i})">Remove</button>
@@ -1251,6 +1251,21 @@
       });
     });
   }
+  // Hide the navbar while scrolling down, show it while scrolling up.
+  let lastScrollY = window.scrollY;
+  const topbarEl = document.querySelector(".topbar");
+  if (topbarEl) {
+    window.addEventListener("scroll", () => {
+      const current = window.scrollY;
+      if (current <= 10) {
+        topbarEl.classList.remove("topbar-hidden");
+      } else if (current > lastScrollY) {
+        topbarEl.classList.add("topbar-hidden");
+      }
+      lastScrollY = current;
+    }, { passive: true });
+  }
+
   route();
 })();
 

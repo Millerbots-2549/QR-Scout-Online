@@ -36,7 +36,7 @@ self.addEventListener("activate", (event) => {
 });
 
 // Navigations: network-first (fresh UI), fall back to the cached shell offline.
-// Other shell assets: stale-while-revalidate — serve the cache instantly, then
+// Other shell assets: stale-while-revalidate  serve the cache instantly, then
 // refresh it in the background so code/CSS updates propagate without a hard
 // reload or a manual CACHE bump. This keeps index.html and app.js in step.
 self.addEventListener("fetch", (event) => {

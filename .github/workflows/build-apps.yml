@@ -5,7 +5,7 @@ name: Build desktop + mobile apps
 # tab links to releases/latest/download/<stable-name>, so file names must stay
 # stable (see artifactName in app/electron-builder.yml, and the mobile renames
 # below). Desktop builds are unsigned; the Android APK is unsigned (sideload);
-# the iPhone .ipa is unsigned (sideload via AltStore/Sideloadly — no paid
+# the iPhone .ipa is unsigned (sideload via AltStore/Sideloadly  no paid
 # Apple Developer account needed to build it).
 on:
   workflow_dispatch:
@@ -48,7 +48,7 @@ jobs:
 
       - name: Build installers
         env:
-          # No signing certificates in this repo — skip macOS signing lookups.
+          # No signing certificates in this repo  skip macOS signing lookups.
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           # Without FUSE, AppImage tools must extract-and-run instead of mount.
           APPIMAGE_EXTRACT_AND_RUN: '1'
