@@ -37,7 +37,9 @@ function createWindow() {
 
   // Load the full web app (bundled locally, works offline for scouting;
   // internet access available for Google Sheets sync and updates)
-  const appHtmlPath = path.join(__dirname, '..', 'index.html');
+  const appHtmlPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'index.html')
+    : path.join(__dirname, '..', 'index.html');
   win.loadFile(appHtmlPath);
 }
 

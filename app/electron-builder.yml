@@ -9,13 +9,18 @@ directories:
 files:
   - main.js
   - package.json
-  - ../index.html
-  - ../manifest.webmanifest
-  - ../sw.js
-  - ../assets/**
+extraResources:
+  - from: ../index.html
+    to: index.html
+  - from: ../manifest.webmanifest
+    to: manifest.webmanifest
+  - from: ../sw.js
+    to: sw.js
+  - from: ../assets
+    to: assets
 win:
   target:
-    - nsis
+    - zip
 nsis:
   oneClick: false
   perMachine: false
@@ -44,6 +49,3 @@ linux:
   category: Utility
   maintainer: Team 2549 Millerbots <noreply@example.com>
   synopsis: QR Scout Online desktop shell
-extraResources:
-  - from: ../assets/images/millerbot-orange.png
-    to: millerbot-orange.png
