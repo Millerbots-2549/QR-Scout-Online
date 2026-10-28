@@ -54,7 +54,7 @@ jobs:
           APPIMAGE_EXTRACT_AND_RUN: '1'
         run: |
           case "${{ runner.os }}" in
-            Windows) npx electron-builder --win nsis --x64 --arm64 2>&1 | tee build.log ;;
+            Windows) npx electron-builder --win zip --x64 --arm64 2>&1 | tee build.log ;;
             macOS)   npx electron-builder --mac dmg zip --x64 --arm64 2>&1 | tee build.log ;;
             Linux)   npx electron-builder --linux AppImage deb --x64 --arm64 2>&1 | tee build.log ;;
           esac
