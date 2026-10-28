@@ -5,19 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node backend/server.js",
-    "dev": "node backend/server.js",
-    "cap:sync": "cap sync",
-    "mobile:android": "cap sync android",
-    "mobile:ios": "cap sync ios",
-    "assets:generate": "capacitor-assets generate",
-    "assets:android": "capacitor-assets generate --android",
-    "assets:ios": "capacitor-assets generate --ios"
+    "dev": "node backend/server.js"
   },
   "dependencies": {
-    "@capacitor/android": "^8.5.3",
-    "@capacitor/cli": "^8.5.3",
-    "@capacitor/core": "^8.5.3",
-    "@capacitor/ios": "^8.5.3",
     "compression": "^1.8.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -25,8 +15,5 @@
     "express-rate-limit": "^7.5.1",
     "googleapis": "^144.0.0",
     "nodemailer": "^10.1.0"
-  },
-  "devDependencies": {
-    "@capacitor/assets": "^3.0.5"
   }
 }
