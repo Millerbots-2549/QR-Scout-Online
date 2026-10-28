@@ -4,4 +4,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://home-grown-code.github.io/QR-Scout-Online/sitemap.xml
+Sitemap: https://millerbots-2549.github.io/QR-Scout-Online/sitemap.xml

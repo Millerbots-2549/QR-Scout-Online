@@ -16,6 +16,7 @@ app.use(require('compression')());
 
 const ALLOWED_ORIGINS = [
   'https://home-grown-code.github.io',
+  'https://millerbots-2549.github.io',
   'http://localhost:3000',
   'http://localhost:5000',
   'http://127.0.0.1:3000',
