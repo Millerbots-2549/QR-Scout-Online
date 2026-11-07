@@ -1,0 +1,30 @@
+# Capacitor generated native projects — rebuilt by CI (`npx cap add` + `cap sync`).
+# Only the shell (mobile/www), the config, and the shared icon/splash source
+# images (resources/icon.png, resources/splash.png) are tracked. CI regenerates
+# the native app icons from resources/ with `npx capacitor-assets generate`.
+android/
+ios/
+node_modules/
+.env
+npm-debug.log*
+.DS_Store
+dist-app/
+# Local mobile build output (CI uploads these as release assets instead).
+dist-mobile/
+# CI debug leftovers
+acts*.html
+alinux.zip
+ann*.json
+arts*.json
+cr*.json
+cruns*.json
+q.html
+r5.json
+rel*.json
+run5-jobs.json
+runs.json
+v105.html
+local-deb-build.log
+alinux-ext/
+# Local IDE/agent tooling
+.continue/
