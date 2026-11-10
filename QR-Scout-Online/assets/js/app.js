@@ -828,6 +828,8 @@
 
   function route() {
     const hash = (location.hash || "").toLowerCase();
+    const path = (location.pathname || "").toLowerCase().replace(/\/$/, "");
+    // Check hash first (for #/scout, #/feedback, etc.)
     if (hash === "#/start-guide" || hash === "#/startguide") {
       showStartGuide();
     } else if (hash === "#/scout") {
@@ -835,6 +837,14 @@
     } else if (hash === "#/feedback") {
       showFeedback();
     } else if (hash === "#/app" || hash === "#/download") {
+      showAppSection();
+    } else if (path.endsWith("/scout") || path.endsWith("/scout.html")) {
+      showScoutPage();
+    } else if (path.endsWith("/feedback") || path.endsWith("/feedback.html")) {
+      showFeedback();
+    } else if (path.endsWith("/guide") || path.endsWith("/guide.html") || path.endsWith("/start-guide") || path.endsWith("/startguide")) {
+      showStartGuide();
+    } else if (path.endsWith("/app") || path.endsWith("/app.html") || path.endsWith("/download") || path.endsWith("/download.html")) {
       showAppSection();
     } else {
       showHome();
@@ -1288,6 +1298,10 @@
     }
   }
 
+  // Handle hash changes (for #/scout, #/feedback, etc.)
+  window.addEventListener("hashchange", route);
+  // Handle browser back/forward navigation
+  window.addEventListener("popstate", route);
   route();
 })();
 
