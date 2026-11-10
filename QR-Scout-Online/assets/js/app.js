@@ -919,7 +919,6 @@
       } catch (err) {
         setStatus(err.message, true);
       }
-      return;
     }
     $("startGuideSection").classList.add("hidden");
     $("feedbackSection").classList.add("hidden");
