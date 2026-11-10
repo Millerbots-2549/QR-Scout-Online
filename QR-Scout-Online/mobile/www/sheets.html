@@ -1,90 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sheet Scout | FRC Scouting to Google Sheets — Sync Match Data</title>
-  <meta name="description" content="Sheet Scout — free FRC scouting to Google Sheets. Sync match scouting data from QR Scout Online into your own spreadsheet. FRC match data collection, robot scouting, and QR code backups for FIRST Robotics Competition teams.">
-  <meta name="keywords" content="sheet scout, frc scouting to google sheets, scouting to google sheets, frc match data, google sheets scouting, frc scout app, qr scout, robot scouting, first robotics scouting">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://millerbots-2549.github.io/QR-Scout-Online/sheets.html">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="QR Scout Online">
-  <meta property="og:title" content="Sheet Scout | FRC Scouting to Google Sheets — Sync Match Data">
-  <meta property="og:description" content="Sheet Scout — free FRC scouting to Google Sheets. Sync match scouting data from QR Scout Online into your own spreadsheet.">
-  <meta property="og:url" content="https://millerbots-2549.github.io/QR-Scout-Online/sheets.html">
-  <meta property="og:image" content="https://millerbots-2549.github.io/QR-Scout-Online/assets/images/millerbot-orange.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Sheet Scout | FRC Scouting to Google Sheets — Sync Match Data">
-  <meta name="twitter:description" content="Sheet Scout — free FRC scouting to Google Sheets. Sync match scouting data from QR Scout Online into your own spreadsheet.">
-  <link rel="preload" as="style" href="assets/css/styles.css">
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/images/millerbot-orange.png">
+  <meta charset="utf-8">
+  <meta httpEquiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=2">
+  <meta name="description" content="QR Scout - Mobile Sheets Page">
+  <meta name="keywords" content="QR Scout, mobile sheets">
+  <title>QR Scout - Mobile Sheets</title>
   <link rel="manifest" href="/manifest.webmanifest">
+  <link href="/favicon.ico" rel="icon">
+  <meta name="theme-color" content="#317EFB">
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand-block" role="button" tabindex="0" aria-label="Return to home" onclick="location.href='index.html'">
-        <div class="brand-title">2549 Millerbots Scouting</div>
-      </div>
-      <nav class="tabs" aria-label="Pages">
-        <a href="index.html">Home</a>
-        <a href="scout.html">FRC Scout</a>
-        <a href="guide.html">Scouting Guide</a>
-        <a href="sheets.html" class="tab-btn active">Sheet Scout</a>
-        <a href="apps.html">Download Apps</a>
-      </nav>
-    </div>
-  </header>
-  <main class="single-page">
-    <section id="sheetsHero" class="panel welcome-panel">
-      <div class="eyebrow">Sheet Scout · QR Scout Online</div>
-      <h1>Sheet Scout — Sync FRC Scouting Data to Google Sheets</h1>
-      <p>Sheet Scout is the free <strong>FRC scouting to Google Sheets</strong> feature of QR Scout Online. Collect <strong>match scouting data</strong> with the <strong>FRC scouting app</strong> and every committed entry lands as a row in <strong>your own</strong> spreadsheet. No backend setup, no Google password required.</p>
-      <a href="index.html" class="primary" style="display:inline-block;margin-top:10px;">Open the FRC scouting app →</a>
-    </section>
-
-    <section class="panel">
-      <h2>How Sheet Scout works</h2>
-      <ol class="guide-steps">
-        <li><strong>Create a Google Sheet</strong> — open <code>sheets.new</code> to make a blank spreadsheet for your <strong>FRC match data</strong>.</li>
-        <li><strong>Copy the Sheet ID</strong> — it's the long string between <code>/d/</code> and <code>/edit</code> in your sheet URL.</li>
-        <li><strong>Share with the service account</strong> — add the QR Scout service account email as an Editor so the app can write to your sheet.</li>
-        <li><strong>Enter the Sheet ID</strong> — on the Scout tab, click "Show sync," paste your Sheet ID, set a tab name, and save.</li>
-        <li><strong>Commit entries</strong> — each scouting entry appends a new row to your Google Sheet automatically.</li>
-      </ol>
-    </section>
-
-    <section class="panel">
-      <h2>Why use Sheet Scout for FRC?</h2>
-      <ul>
-        <li><strong>Your data, your sheet</strong> — entries go to a spreadsheet you own and control.</li>
-        <li><strong>No passwords shared</strong> — only the service account gets Editor access to your sheet.</li>
-        <li><strong>Works offline</strong> — entries queue and sync when you're back online.</li>
-        <li><strong>QR code backups</strong> — scannable offline copies of every entry.</li>
-        <li><strong>Free for every FRC team</strong> — no subscription, no login.</li>
-      </ul>
-    </section>
-
-    <section class="panel">
-      <h2>FRC match data to Google Sheets in action</h2>
-      <p>Teams like 2549 Millerbots use QR Scout Online to collect <strong>robot scouting</strong> data during regionals and championships, then analyze it in Google Sheets for alliance selection and match strategy. It's a complete <strong>sheet scout</strong> and <strong>qr scout</strong> toolkit built for <strong>FIRST Robotics scouting</strong>.</p>
-      <p class="hint">Set it up now: <a href="index.html">Open the FRC scouting app</a> · <a href="guide.html">FRC scouting guide</a></p>
-    </section>
-  </main>
-
-  <footer id="siteFooter" class="panel">
-    <h2>QR Scout Online — FRC Scouting &amp; Sheet Scout</h2>
-    <p>Free <strong>FRC scouting app</strong> by <strong>2549 Millerbots</strong>. Collect <strong>match scouting data</strong> with QR codes and sync to <strong>Google Sheets</strong>.</p>
-    <nav class="footer-links" aria-label="Footer navigation">
-      <a href="index.html">Home</a>
-      <a href="scout.html">FRC Scout App</a>
-      <a href="guide.html">FRC Scouting Guide</a>
-      <a href="apps.html">Download Apps</a>
-      <a href="https://github.com/Millerbots-2549/QR-Scout-Online">GitHub Repository</a>
-    </nav>
-
-  </footer>
+  <div id="app"></div>
+  <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
