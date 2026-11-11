@@ -52,6 +52,23 @@ jobs:
             Linux)   npx electron-builder --linux AppImage deb --x64 --arm64 ;;
           esac
 
+      - name: Normalize Linux x64 artifact names
+        if: runner.os == 'Linux'
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const path = require("node:path");
+            const dir = path.join(process.env.GITHUB_WORKSPACE, "QR-Scout-Online", "dist-app");
+            for (const entry of fs.readdirSync(dir)) {
+              const match = entry.match(/^Fieldnotes-linux-(x86_64|amd64)\.(AppImage|deb)$/);
+              if (match) {
+                const target = `Fieldnotes-linux-x64.${match[2]}`;
+                fs.renameSync(path.join(dir, entry), path.join(dir, target));
+                console.log(`renamed ${entry} -> ${target}`);
+              }
+            }
+          '
+
       - name: Upload installers
         uses: actions/upload-artifact@v4
         with:
