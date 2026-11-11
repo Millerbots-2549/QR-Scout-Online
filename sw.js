@@ -1,4 +1,4 @@
-const CACHE = "qr-scout-docs-shell-v4";
+const CACHE = "qr-scout-docs-shell-v5";
 const SHELL = [
   "./",
   "./index.html",
@@ -7,6 +7,8 @@ const SHELL = [
   "./apps.html",
   "./feedback.html",
   "./manifest.webmanifest",
+  "./assets/images/icon-192.png",
+  "./assets/images/icon-512.png",
   "./assets/images/millerbot-orange.png",
   "./site.css",
   "./site.js",
