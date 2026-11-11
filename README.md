@@ -1,6 +1,6 @@
 # QR Scout Online
 
-QR Scout Online is a browser-based scouting app for FIRST Robotics Competition (FRC) teams. The hosted Fieldnotes site lets scouts fill out a configurable match form, save entries on their device, create QR-code backups, and sync rows to their own Google Sheet. It includes a feedback form and an installable PWA.
+QR Scout Online is a browser-based scouting app for FIRST Robotics Competition (FRC) teams. The hosted QR Scout Docs site lets scouts fill out a configurable match form, save entries on their device, create QR-code backups, and sync rows to their own Google Sheet. It includes a feedback form and an installable PWA.
 
 ## Using the hosted site (no setup)
 
@@ -9,14 +9,14 @@ The easiest way to use QR Scout Online is the deployed site. You do not need to 
 1. Create a Google Sheet.
 2. Share it with the app's service account (`frc-scout@frc-scout-511222.iam.gserviceaccount.com`) as an **Editor**.
 3. The default scouting form is ready on the **Scout** page. To customize it, select **Edit JSON** beside **Commit**; load or edit a config and choose **Apply config**.
-4. Open **Google Sheets sync settings** below the form actions. Paste the Sheet ID (the part of the sheet URL between `/d/` and `/edit`), set the tab and starting column, then select **Save sheet**.
+4. Select **Sync settings** beside Commit. Paste the Sheet ID (the part of the sheet URL between `/d/` and `/edit`), set the tab and starting column, then select **Save sheet**.
 5. Fill out the form and select **Commit**. Choose **Save to device**, **Generate QR code**, or **Sync to sheet**. Sync appends the match row to your spreadsheet.
 
-Matches are stored in the browser on that device. Offline sync attempts are queued for retry when the device reconnects. Use **JSON backup**, **Import JSON**, or **Export CSV** to transfer or archive match data. Feedback sent from the **Feedback** page goes to the site owner, not to your scouting sheet.
+Matches are stored in the browser on that device. Offline sync attempts are queued for retry when the device reconnects. Use **Edit JSON** to edit the scouting form configuration or access the saved-match **JSON backup** and **Import matches JSON** actions. **Export CSV** remains in the top toolbar. Feedback sent from the **Feedback** page goes to the site owner, not to your scouting sheet.
 
 ## How it works
 
-- The Fieldnotes website is static and is published from the repository root on GitHub Pages. It can also be installed as a PWA where supported.
+- The QR Scout Docs website is static and is published from the repository root on GitHub Pages. It can also be installed as a PWA where supported.
 - A small Node.js backend receives scouting entries and feedback. The deployed copy runs on Render.
 - **Scouting:** each scout enters the ID of their own Google Sheet and shares it with the backend's service account (as an Editor). The backend appends one row per entry to that sheet, so nobody ever shares a Google password with the app.
 - **Feedback:** submissions are saved to a `Feedback` tab in the site owner's sheet and can be emailed when SMTP is configured.
@@ -79,16 +79,16 @@ The backend provides `GET /health`, `POST /api/sync-sheet`, and `POST /api/feedb
 
 ## Desktop and mobile apps
 
-- **Desktop:** The Electron shell in `QR-Scout-Online/app/` bundles the current Fieldnotes pages from the repository root. Push a `v*` tag to run `.github/workflows/build-fieldnotes-apps.yml` and publish Windows, macOS, and Linux installers. Builds are unsigned, so operating systems may show a security warning.
-- **Phones and tablets:** Install the Fieldnotes PWA from the browser. The service worker caches the app shell; match data stays in local browser storage on that device. Google Sheets sync and feedback require internet access.
+- **Desktop:** The Electron shell in `QR-Scout-Online/app/` bundles the current QR Scout Docs pages from the repository root. Push a `v*` tag to run `.github/workflows/build-fieldnotes-apps.yml` and publish Windows, macOS, and Linux installers. Builds are unsigned, so operating systems may show a security warning.
+- **Phones and tablets:** Install the QR Scout Docs PWA from the browser. The service worker caches the app shell; match data stays in local browser storage on that device. Google Sheets sync and feedback require internet access.
 
 ## Useful files
 
 - `index.html`, `scout.html`, `guide.html`, `apps.html`, and `feedback.html`  website pages
 - `scout.js`, `site.js`, and `sw.js`  scouting logic, PWA install support, and offline shell
-- `QR-Scout-Online/app/`  Electron desktop shell packaged with the Fieldnotes site
+- `QR-Scout-Online/app/`  Electron desktop shell packaged with the QR Scout Docs site
 - `backend/server.js`  API server and Google Sheets integration
 - `.env.example`  example backend configuration (no real credentials)
 - `sw.js` and `manifest.webmanifest`  PWA service worker and manifest
-- `.github/workflows/build-fieldnotes-apps.yml`  Fieldnotes desktop release workflow
+- `.github/workflows/build-fieldnotes-apps.yml`  desktop app release workflow
 - `.github/workflows/pages.yml`  GitHub Pages deployment workflow

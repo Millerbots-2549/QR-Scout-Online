@@ -1,4 +1,4 @@
-name: Build Fieldnotes desktop apps
+name: Build QR Scout Docs desktop apps
 
 on:
   workflow_dispatch:
@@ -60,9 +60,9 @@ jobs:
             const path = require("node:path");
             const dir = path.join(process.env.GITHUB_WORKSPACE, "QR-Scout-Online", "dist-app");
             for (const entry of fs.readdirSync(dir)) {
-              const match = entry.match(/^Fieldnotes-linux-(x86_64|amd64)\.(AppImage|deb)$/);
+              const match = entry.match(/^QR-Scout-Docs-linux-(x86_64|amd64)\.(AppImage|deb)$/);
               if (match) {
-                const target = `Fieldnotes-linux-x64.${match[2]}`;
+                const target = `QR-Scout-Docs-linux-x64.${match[2]}`;
                 fs.renameSync(path.join(dir, entry), path.join(dir, target));
                 console.log(`renamed ${entry} -> ${target}`);
               }

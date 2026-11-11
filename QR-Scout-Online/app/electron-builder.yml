@@ -1,9 +1,9 @@
 appId: com.homegrowncode.qrscout
-productName: Fieldnotes
+productName: QR Scout Docs
 copyright: Copyright © 2026 Team 2549 Millerbots
 # Stable file names (no version) so the site's download links can point at
 # releases/latest/download/<name> forever.
-artifactName: 'Fieldnotes-${os}-${arch}.${ext}'
+artifactName: 'QR-Scout-Docs-${os}-${arch}.${ext}'
 directories:
   output: ../dist-app
 files:
@@ -46,12 +46,12 @@ nsis:
   allowElevation: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: Fieldnotes
-  installerIcon: ../../assets/images/icon-512.png
-  uninstallerIcon: ../../assets/images/icon-512.png
-  installerHeader: ../../assets/images/icon-512.png
+  shortcutName: QR Scout Docs
+  installerIcon: ../../assets/images/millerbot-orange.png
+  uninstallerIcon: ../../assets/images/millerbot-orange.png
+  installerHeader: ../../assets/images/millerbot-orange.png
   differentialPackage: true
-icon: ../../assets/images/icon-512.png
+icon: ../../assets/images/millerbot-orange.png
 mac:
   target:
     - dmg

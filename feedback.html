@@ -3,26 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101311">
-  <title>Feedback — Fieldnotes</title>
+  <meta name="theme-color" content="#e8f5ff">
+  <title>Feedback — QR Scout Docs</title>
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/images/millerbot-orange.png">
   <link rel="stylesheet" href="site.css">
   <style>
     .feedback-page { width: min(100% - 32px, 760px); margin: 0 auto; padding: 8px 0 52px; }
-    .feedback-card { padding: clamp(20px, 4vw, 32px); border: 1px solid #303832; border-radius: 16px; background: #181c19; }
-    .eyebrow { color: #c3f36b; font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .15em; }
+    .feedback-card { padding: clamp(20px, 4vw, 32px); border: 1px solid #b8d9ef; border-radius: 16px; background: #fff; }
+    .eyebrow { color: #c44d00; font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .15em; }
     h1 { margin: 8px 0; font-size: clamp(28px, 5vw, 38px); letter-spacing: -.055em; }
-    .intro { margin: 0 0 22px; color: #9da69e; font-size: 13px; line-height: 1.6; }
+    .intro { margin: 0 0 22px; color: #58758b; font-size: 13px; line-height: 1.6; }
     .feedback-form { display: grid; gap: 15px; }
     .field { display: grid; gap: 7px; }
-    .field label { color: #c9d0c8; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; font-weight: 720; }
-    .control { width: 100%; color: #f0f3ed; background: #111512; border: 1px solid #39423a; border-radius: 9px; min-height: 42px; padding: 10px 11px; outline: none; font: inherit; font-size: 12px; }
-    .control:focus { border-color: #c3f36b; box-shadow: 0 0 0 3px rgba(195,243,107,.11); }
+    .field label { color: #17364f; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; font-weight: 720; }
+    .control { width: 100%; color: #17364f; background: #fff; border: 1px solid #a9cce3; border-radius: 9px; min-height: 42px; padding: 10px 11px; outline: none; font: inherit; font-size: 12px; }
+    .control:focus { border-color: #ff7417; box-shadow: 0 0 0 3px rgba(255,116,23,.14); }
     textarea.control { min-height: 140px; resize: vertical; }
-    .submit { min-height: 42px; width: fit-content; padding: 0 16px; border: 1px solid #c3f36b; border-radius: 9px; background: #c3f36b; color: #1b2610; font: inherit; font-size: 12px; font-weight: 750; cursor: pointer; }
+    .submit { min-height: 42px; width: fit-content; padding: 0 16px; border: 1px solid #ff7417; border-radius: 9px; background: #ff7417; color: #3b1b06; font: inherit; font-size: 12px; font-weight: 750; cursor: pointer; }
     .submit:disabled { opacity: .6; cursor: wait; }
-    .status { min-height: 18px; color: #9da69e; font-size: 12px; }
-    .status.error { color: #ff9a61; }
+    .status { min-height: 18px; color: #58758b; font-size: 12px; }
+    .status.error { color: #b93814; }
     .honeypot { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
     @media (max-width: 620px) { .feedback-page { width: min(100% - 26px, 760px); padding-top: 0; } }
   </style>
@@ -30,8 +31,8 @@
 <body>
   <header class="site-header">
     <a class="site-brand" href="index.html">
-      <span class="site-brand-mark" aria-hidden="true">F</span>
-      <span><span class="site-brand-name">fieldnotes<span style="color:#c3f36b">.</span></span><span class="site-brand-caption" style="display:block">FRC match scouting</span></span>
+      <img class="site-brand-mark" src="assets/images/millerbot-orange.png" alt="" aria-hidden="true">
+      <span><span class="site-brand-name">QR Scout Docs</span><span class="site-brand-caption" style="display:block">FRC match scouting</span></span>
     </a>
     <nav class="site-nav" aria-label="Main navigation">
       <a href="index.html">Home</a>

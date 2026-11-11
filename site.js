@@ -28,6 +28,6 @@
   }
 
   if (window.matchMedia?.("(display-mode: standalone)").matches && installHint) {
-    installHint.textContent = "Fieldnotes is installed on this device.";
+    installHint.textContent = "QR Scout Docs is installed on this device.";
   }
 })();

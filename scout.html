@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101311">
-  <title>Scout — Fieldnotes</title>
+  <meta name="theme-color" content="#e8f5ff">
+  <title>Scout — QR Scout Docs</title>
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/images/millerbot-orange.png">
   <link rel="stylesheet" href="site.css">
   <style>
     .shell { max-width: 1540px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 44px) 48px; }
@@ -20,12 +21,7 @@
     .intro p { color: var(--site-muted); margin: 0; font-size: 13px; }
     .match-pill { border: 1px solid var(--site-line); background: var(--site-surface); padding: 10px 13px; border-radius: 11px; color: var(--site-muted); white-space: nowrap; font-size: 11px; }
     .match-pill strong { color: var(--site-text); font-size: 14px; margin-left: 5px; }
-    .sheet-settings, .panel { background: rgba(24,28,25,.94); border: 1px solid var(--site-line); border-radius: 13px; overflow: hidden; }
-    .sheet-settings { margin-top: 20px; }
-    .sheet-settings > summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 15px; cursor: pointer; list-style: none; }
-    .sheet-settings > summary::-webkit-details-marker { display: none; }
-    .sheet-settings > summary::after { content: "+"; color: var(--site-lime); font-size: 19px; line-height: 1; }
-    .sheet-settings[open] > summary::after { content: "−"; }
+    .panel { background: rgba(24,28,25,.94); border: 1px solid var(--site-line); border-radius: 13px; overflow: hidden; }
     .sheet-title { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
     .sheet-details { border-top: 1px solid var(--site-line); }
     .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 15px; border-bottom: 1px solid var(--site-line); }
@@ -67,8 +63,9 @@
     .form-status { font-size: 11px; color: var(--site-muted); }
     .form-status.error { color: #ff9a61; }
     .footer-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
-    .primary-button { background: var(--site-lime); color: #1b2610; border-color: var(--site-lime); font-weight: 750; }
-    .primary-button:hover:not(:disabled) { background: #d3ff8b; }
+    .primary-actions { display: flex; gap: 7px; }
+    .primary-button { background: var(--site-lime); color: #3b1b06; border-color: var(--site-lime); font-weight: 750; }
+    .primary-button:hover:not(:disabled) { background: #ff9146; }
     button:disabled { opacity: .5; cursor: wait; }
     .history { margin-top: 26px; }
     .history-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
@@ -79,10 +76,13 @@
     .saved-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--site-line); background: var(--site-surface); border-radius: 11px; }
     .saved-card strong { display: block; font-size: 12px; }
     .saved-card small { display: block; color: var(--site-muted); margin-top: 4px; font-size: 10px; }
-    .saved-score { color: var(--site-lime); font-size: 11px; font-weight: 750; white-space: nowrap; }
     .saved-card button { border: 0; background: transparent; color: var(--site-muted); cursor: pointer; padding: 6px; }
     .saved-card-main { min-width: 0; }
     .record-options-button { flex: 0 0 auto; }
+    .backup-tools { padding-top: 12px; border-top: 1px solid var(--site-line); display: grid; gap: 8px; }
+    .backup-tools strong { font-size: 12px; }
+    .backup-tools p { margin: 0; color: var(--site-muted); font-size: 11px; line-height: 1.5; }
+    .backup-actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .record-dialog-summary { margin: 0; font-size: 13px; font-weight: 700; }
     .record-dialog-meta { margin: 0; color: var(--site-muted); font-size: 11px; }
     .record-dialog-actions { display: grid; gap: 8px; }
@@ -125,6 +125,9 @@
       .commit-choice { min-height: auto; }
       .footer-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .footer-buttons button { min-height: 39px; padding: 0 7px; }
+      .primary-actions { grid-column: 1 / -1; }
+      .primary-actions .button { flex: 1; }
+      .backup-actions { display: grid; grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -132,15 +135,12 @@
   <main class="shell">
     <header class="topbar">
       <a class="site-brand" href="index.html">
-        <span class="site-brand-mark" aria-hidden="true">F</span>
-        <span><span class="site-brand-name">fieldnotes<span style="color:var(--site-lime)">.</span></span><span class="site-brand-caption" style="display:block">FRC match scouting</span></span>
+        <img class="site-brand-mark" src="assets/images/millerbot-orange.png" alt="" aria-hidden="true">
+        <span><span class="site-brand-name">QR Scout Docs</span><span class="site-brand-caption" style="display:block">FRC match scouting</span></span>
       </a>
       <div class="top-actions">
         <span class="saved-count" id="saved-count">0 matches saved</span>
         <button class="button" id="export-button" type="button">Export CSV</button>
-        <button class="button" id="export-json-button" type="button">JSON backup</button>
-        <button class="button" id="import-json-button" type="button">Import JSON</button>
-        <input id="json-file" type="file" accept=".json,application/json" hidden>
       </div>
     </header>
     <nav class="site-nav" aria-label="Main navigation">
@@ -164,22 +164,26 @@
           <button class="button" type="button" id="reset-button">Reset form</button>
           <button class="button" type="button" id="sync-pending-button" hidden>Sync pending (0)</button>
           <button class="button" type="button" id="edit-config-button">Edit JSON</button>
-          <button class="button primary-button" type="button" id="commit-button">Commit</button>
+          <div class="primary-actions">
+            <button class="button" type="button" id="sheet-settings-button">Sync settings</button>
+            <button class="button primary-button" type="button" id="commit-button">Commit</button>
+          </div>
         </div>
       </div>
     </form>
-    <details class="sheet-settings" id="sheet-settings">
-      <summary><span class="sheet-title">Google Sheets sync settings</span><span class="panel-note">Connect your scouting sheet</span></summary>
-      <div class="sheet-details">
+  <dialog class="modal sheet-settings" id="sheet-settings-dialog" aria-labelledby="sheet-settings-title">
+    <div class="modal-head"><h2 id="sheet-settings-title">Google Sheets sync settings</h2><button class="button" type="button" data-close-dialog="sheet-settings-dialog" aria-label="Close">Close</button></div>
+    <div class="modal-body">
+      <div class="modal-hint">Connect your scouting sheet to sync committed matches.</div>
         <form class="sheet-body" id="sheet-settings-form">
           <div class="field"><label for="sheet-id">Google Sheet ID</label><input class="control" id="sheet-id" name="sheetId" autocomplete="off" placeholder="ID from your Google Sheet URL" required></div>
           <div class="field"><label for="sheet-tab">Sheet tab</label><input class="control" id="sheet-tab" name="sheetName" value="Scouting" required></div>
           <div class="field"><label for="sheet-column">Start column</label><input class="control" id="sheet-column" name="startColumn" value="A" maxlength="3" required></div>
           <button class="button" type="submit">Save sheet</button>
         </form>
-        <div class="sheet-help">Share your spreadsheet with the backend service account as an Editor: <strong>frc-scout@frc-scout-511222.iam.gserviceaccount.com</strong>. Your sheet settings are saved only in this browser.</div>
-      </div>
-    </details>
+      <div class="sheet-help">Share your spreadsheet with the backend service account as an Editor: <strong>frc-scout@frc-scout-511222.iam.gserviceaccount.com</strong>. Your sheet settings are saved only in this browser.</div>
+    </div>
+  </dialog>
     <section class="history" id="history-list" aria-label="Saved matches">
       <div class="history-head"><div><h2>Saved matches</h2><p>Your scouting records, stored locally on this device.</p></div><button class="button" type="button" id="clear-history">Clear all</button></div>
       <div class="history-list" id="history-items"></div>
@@ -205,6 +209,15 @@
       <textarea class="json-editor" id="config-editor" spellcheck="false" aria-label="Scouting configuration JSON"></textarea>
       <input id="config-file" type="file" accept=".json,application/json" hidden>
       <div class="form-status" id="config-status" role="status" aria-live="polite"></div>
+      <section class="backup-tools" aria-label="Saved match backup tools">
+        <strong>Saved match data</strong>
+        <p>Back up or import saved scouting matches. This is separate from the form configuration above.</p>
+        <div class="backup-actions">
+          <button class="button" type="button" id="export-json-button">JSON backup</button>
+          <button class="button" type="button" id="import-json-button">Import matches JSON</button>
+        </div>
+        <input id="json-file" type="file" accept=".json,application/json" hidden>
+      </section>
     </div>
     <div class="modal-actions">
       <button class="button" type="button" id="load-config-file">Load JSON file</button>

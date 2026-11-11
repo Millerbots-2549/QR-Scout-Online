@@ -1,4 +1,4 @@
-const CACHE = "fieldnotes-shell-v2";
+const CACHE = "qr-scout-docs-shell-v3";
 const SHELL = [
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const SHELL = [
   "./apps.html",
   "./feedback.html",
   "./manifest.webmanifest",
+  "./assets/images/millerbot-orange.png",
   "./site.css",
   "./site.js",
   "./scout.js",

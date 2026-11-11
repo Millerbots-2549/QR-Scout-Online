@@ -1,9 +1,9 @@
 {
-  "name": "fieldnotes-desktop",
-  "productName": "Fieldnotes",
-  "version": "1.1.0",
+  "name": "qr-scout-docs-desktop",
+  "productName": "QR Scout Docs",
+  "version": "1.2.0",
   "private": true,
-  "description": "Desktop app for Fieldnotes FRC scouting.",
+  "description": "Desktop app for QR Scout Docs FRC scouting.",
   "homepage": "https://millerbots-2549.github.io/QR-Scout-Online/",
   "main": "main.js",
   "author": "Home-Grown-Code / Team 2549 Millerbots",

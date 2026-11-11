@@ -329,12 +329,11 @@
     }
     items.innerHTML = records.slice().reverse().map((record, reverseIndex) => {
       const index = records.length - 1 - reverseIndex;
-      const score = (Number(record.autoFuel) || 0) + (Number(record.teleFuel) || 0);
       const date = new Date(record.savedAt);
       const when = Number.isNaN(date.getTime()) ? "" : date.toLocaleString();
       const match = record.data?.matchNumber ?? record.match ?? "—";
       const team = record.data?.robot ?? record.team ?? "—";
-      return '<article class="saved-card"><div class="saved-card-main"><strong>Match ' + escapeHtml(match) + " · Team " + escapeHtml(team) + '</strong><small>Scouted by ' + escapeHtml(record.data?.scouter ?? record.initials ?? "—") + (when ? " · " + escapeHtml(when) : "") + '</small></div><span class="saved-score">' + score + ' fuel</span><button class="button record-options-button" type="button" data-open-record data-index="' + index + '" aria-label="Options for match ' + escapeHtml(match) + ', team ' + escapeHtml(team) + '">Options</button></article>';
+      return '<article class="saved-card"><div class="saved-card-main"><strong>Match ' + escapeHtml(match) + " · Team " + escapeHtml(team) + '</strong><small>Scouted by ' + escapeHtml(record.data?.scouter ?? record.initials ?? "—") + (when ? " · " + escapeHtml(when) : "") + '</small></div><button class="button record-options-button" type="button" data-open-record data-index="' + index + '" aria-label="Options for match ' + escapeHtml(match) + ', team ' + escapeHtml(team) + '">Options</button></article>';
     }).join("");
   }
 
@@ -489,6 +488,10 @@
     const cell = Array.isArray(value) || (value && typeof value === "object") ? JSON.stringify(value) : String(value ?? "");
     return '"' + cell.replace(/"/g, '""') + '"';
   }
+
+  document.getElementById("sheet-settings-button").addEventListener("click", () => {
+    document.getElementById("sheet-settings-dialog").showModal();
+  });
 
   document.getElementById("sheet-settings-form").addEventListener("submit", (event) => {
     event.preventDefault();

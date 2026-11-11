@@ -1,4 +1,4 @@
-// Fieldnotes desktop shell.
+// QR Scout Docs desktop shell.
 const { app, BrowserWindow, protocol, shell } = require('electron');
 const fs = require('node:fs/promises');
 const path = require('node:path');
@@ -6,7 +6,7 @@ const path = require('node:path');
 const APP_ROOT = app.isPackaged
   ? process.resourcesPath
   : path.resolve(__dirname, '..', '..');
-const APP_ICON = path.join(APP_ROOT, 'assets', 'images', 'icon-512.png');
+const APP_ICON = path.join(APP_ROOT, 'assets', 'images', 'millerbot-orange.png');
 const MIME_TYPES = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
@@ -61,7 +61,7 @@ function createWindow() {
     minWidth: 420,
     minHeight: 500,
     autoHideMenuBar: true,
-    backgroundColor: '#101311',
+    backgroundColor: '#e8f5ff',
     icon: APP_ICON,
     webPreferences: {
       contextIsolation: true,
