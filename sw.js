@@ -1,4 +1,4 @@
-const CACHE = "qr-scout-docs-shell-v3";
+const CACHE = "qr-scout-docs-shell-v4";
 const SHELL = [
   "./",
   "./index.html",

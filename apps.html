@@ -7,6 +7,16 @@
   <title>Apps — QR Scout Docs</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/images/millerbot-orange.png">
+  <script>
+    try {
+      if (localStorage.getItem("qr-scout-theme") === "dark") {
+        document.documentElement.dataset.theme = "dark";
+        document.querySelector('meta[name="theme-color"]').content = "#0c1823";
+      }
+    } catch (error) {
+      console.error("Could not read the theme preference.", error);
+    }
+  </script>
   <link rel="stylesheet" href="site.css">
 </head>
 <body>
@@ -22,6 +32,9 @@
       <a href="feedback.html">Feedback</a>
       <a href="apps.html" aria-current="page">Apps</a>
     </nav>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span>
+    </button>
   </header>
   <main class="page-shell">
     <section class="page-hero">

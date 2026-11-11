@@ -1,7 +1,7 @@
 {
   "name": "qr-scout-docs-desktop",
   "productName": "QR Scout Docs",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "description": "Desktop app for QR Scout Docs FRC scouting.",
   "homepage": "https://millerbots-2549.github.io/QR-Scout-Online/",

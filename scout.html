@@ -7,6 +7,16 @@
   <title>Scout — QR Scout Docs</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/images/millerbot-orange.png">
+  <script>
+    try {
+      if (localStorage.getItem("qr-scout-theme") === "dark") {
+        document.documentElement.dataset.theme = "dark";
+        document.querySelector('meta[name="theme-color"]').content = "#0c1823";
+      }
+    } catch (error) {
+      console.error("Could not read the theme preference.", error);
+    }
+  </script>
   <link rel="stylesheet" href="site.css">
   <style>
     .shell { max-width: 1540px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 44px) 48px; }
@@ -116,6 +126,8 @@
       .shell { padding: 16px 13px 32px; }
       .topbar { align-items: flex-start; flex-direction: column; }
       .top-actions { width: 100%; }
+      .topbar .site-nav { width: 100%; }
+      .top-actions .theme-toggle { margin-left: auto; }
       .intro { align-items: flex-start; flex-direction: column; }
       .sheet-body { grid-template-columns: 1fr 1fr; }
       .sheet-body .button { min-height: 40px; }
@@ -138,18 +150,20 @@
         <img class="site-brand-mark" src="assets/images/millerbot-orange.png" alt="" aria-hidden="true">
         <span><span class="site-brand-name">QR Scout Docs</span><span class="site-brand-caption" style="display:block">FRC match scouting</span></span>
       </a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="scout.html" aria-current="page">Scout</a>
+        <a href="guide.html">Guide</a>
+        <a href="feedback.html">Feedback</a>
+        <a href="apps.html">Apps</a>
+      </nav>
       <div class="top-actions">
         <span class="saved-count" id="saved-count">0 matches saved</span>
-        <button class="button" id="export-button" type="button">Export CSV</button>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+          <span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span>
+        </button>
       </div>
     </header>
-    <nav class="site-nav" aria-label="Main navigation">
-      <a href="index.html">Home</a>
-      <a href="scout.html" aria-current="page">Scout</a>
-      <a href="guide.html">Guide</a>
-      <a href="feedback.html">Feedback</a>
-      <a href="apps.html">Apps</a>
-    </nav>
     <div class="intro">
       <div><div class="eyebrow" id="config-title">Match scouting</div><h1>Record what happens.</h1><p>Quick, consistent notes from the field, one match at a time.</p></div>
       <div class="match-pill">CURRENT MATCH <strong id="match-badge">#1</strong></div>

@@ -7,6 +7,16 @@
   <title>QR Scout Docs — FRC Scouting</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/images/millerbot-orange.png">
+  <script>
+    try {
+      if (localStorage.getItem("qr-scout-theme") === "dark") {
+        document.documentElement.dataset.theme = "dark";
+        document.querySelector('meta[name="theme-color"]').content = "#0c1823";
+      }
+    } catch (error) {
+      console.error("Could not read the theme preference.", error);
+    }
+  </script>
   <link rel="stylesheet" href="site.css">
   <style>
     .home { width: min(100% - 32px, 1452px); margin: 0 auto; padding: 6px 0 52px; }
@@ -67,6 +77,9 @@
       <a href="feedback.html">Feedback</a>
       <a href="apps.html">Apps</a>
     </nav>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span>
+    </button>
   </header>
   <main class="home">
     <section class="hero">

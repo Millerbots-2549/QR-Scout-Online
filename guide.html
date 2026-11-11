@@ -7,6 +7,16 @@
   <title>Guide — QR Scout Docs</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/images/millerbot-orange.png">
+  <script>
+    try {
+      if (localStorage.getItem("qr-scout-theme") === "dark") {
+        document.documentElement.dataset.theme = "dark";
+        document.querySelector('meta[name="theme-color"]').content = "#0c1823";
+      }
+    } catch (error) {
+      console.error("Could not read the theme preference.", error);
+    }
+  </script>
   <link rel="stylesheet" href="site.css">
 </head>
 <body>
@@ -22,6 +32,9 @@
       <a href="feedback.html">Feedback</a>
       <a href="apps.html">Apps</a>
     </nav>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span>
+    </button>
   </header>
   <main class="page-shell">
     <section class="page-hero">
@@ -69,7 +82,7 @@
         <span class="step-number">04</span>
         <h2>Manage saved matches</h2>
         <p>Use the menu on a saved match to generate its QR code, download its JSON, sync it, or delete it.</p>
-        <p>Open <strong>Edit JSON</strong> to back up or import saved-match JSON. <strong>Export CSV</strong> remains in the top toolbar for spreadsheet-friendly files.</p>
+        <p>Open <strong>Edit JSON</strong> to back up or import saved-match JSON.</p>
       </article>
     </section>
 

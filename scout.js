@@ -484,11 +484,6 @@
     return record;
   }
 
-  function csvValue(value) {
-    const cell = Array.isArray(value) || (value && typeof value === "object") ? JSON.stringify(value) : String(value ?? "");
-    return '"' + cell.replace(/"/g, '""') + '"';
-  }
-
   document.getElementById("sheet-settings-button").addEventListener("click", () => {
     document.getElementById("sheet-settings-dialog").showModal();
   });
@@ -796,27 +791,6 @@
     } catch (error) {
       document.getElementById("config-status").textContent = error instanceof SyntaxError ? "Invalid JSON: " + error.message : error.message;
       document.getElementById("config-status").classList.add("error");
-    }
-  });
-
-  document.getElementById("export-button").addEventListener("click", () => {
-    try {
-      const records = loadRecords();
-      if (!records.length) return showToast("Save a match before exporting");
-      const columns = Array.from(new Set(records.flatMap((record) => Object.keys(record.data || record))));
-      const csv = [columns.map(csvValue).join(","), ...records.map((record) => {
-        const data = record.data || record;
-        return columns.map((column) => csvValue(data[column])).join(",");
-      })].join("\r\n");
-      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "fieldnotes-scouting.csv";
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (error) {
-      console.error("Could not export scouting CSV.", error);
-      showStatus("Could not export saved matches. " + error.message, true);
     }
   });
 
