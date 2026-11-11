@@ -12,7 +12,7 @@ The easiest way to use QR Scout Online is the deployed site. You do not need to 
 4. Select **Sync settings** beside Commit. Paste the Sheet ID (the part of the sheet URL between `/d/` and `/edit`), set the tab and starting column, then select **Save sheet**.
 5. Fill out the form and select **Commit**. Choose **Save to device**, **Generate QR code**, or **Sync to sheet**. Sync appends the match row to your spreadsheet.
 
-Matches are stored in the browser on that device. Offline sync attempts are queued for retry when the device reconnects. Use **Edit JSON** to edit the scouting form configuration or access the saved-match **JSON backup** and **Import matches JSON** actions. The light/dark theme toggle is available in the header across all pages. On Windows, install the PWA from Edge or Chrome using the **Install app** button or browser menu. Feedback sent from the **Feedback** page goes to the site owner, not to your scouting sheet.
+Matches are stored in the browser on that device. Offline sync attempts are queued for retry when the device reconnects. Use **Edit JSON** to edit the scouting form configuration or download a saved-match **JSON backup**. The light/dark theme toggle is available in the header across all pages. On Windows, install the PWA from Edge or Chrome using the **Install app** button or browser menu. Feedback sent from the **Feedback** page goes to the site owner, not to your scouting sheet.
 
 ## How it works
 

@@ -42,6 +42,7 @@
     deferredPrompt = event;
     if (installButton) {
       installButton.hidden = false;
+      installButton.style.display = "inline-flex";
       installButton.disabled = false;
     }
     if (installHint) installHint.textContent = "This browser can install QR Scout Docs.";
@@ -70,6 +71,7 @@
       } finally {
         deferredPrompt = null;
         installButton.hidden = true;
+        installButton.style.display = "none";
         installButton.disabled = false;
       }
     });
@@ -77,12 +79,18 @@
 
   window.addEventListener("appinstalled", () => {
     deferredPrompt = null;
-    if (installButton) installButton.hidden = true;
+    if (installButton) {
+      installButton.hidden = true;
+      installButton.style.display = "none";
+    }
     if (installHint) installHint.textContent = "QR Scout Docs is installed on this device.";
   });
 
   if (isStandalone) {
-    if (installButton) installButton.hidden = true;
+    if (installButton) {
+      installButton.hidden = true;
+      installButton.style.display = "none";
+    }
     if (installHint) installHint.textContent = "QR Scout Docs is installed on this device.";
   } else if (installButton && installHint && !deferredPrompt) {
     installHint.textContent = "If the Install app button does not appear, use the browser menu to install QR Scout Docs.";

@@ -1,4 +1,4 @@
-const CACHE = "qr-scout-docs-shell-v5";
+const CACHE = "qr-scout-docs-shell-v6";
 const SHELL = [
   "./",
   "./index.html",
@@ -26,8 +26,11 @@ function withTimeout(promise, milliseconds) {
 }
 
 self.addEventListener("install", (event) => {
+  const shellRequests = SHELL.map((path) =>
+    new Request(new URL(path, self.location.href), { cache: "reload" })
+  );
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting())
+    caches.open(CACHE).then((cache) => cache.addAll(shellRequests)).then(() => self.skipWaiting())
   );
 });
 
@@ -47,7 +50,7 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      withTimeout(fetch(request), 10000)
+      withTimeout(fetch(request.url, { cache: "reload" }), 10000)
         .then((response) => {
           if (response.ok) {
             const copy = response.clone();
@@ -62,7 +65,7 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     caches.match(request).then((cached) => {
-      const network = withTimeout(fetch(request), 10000)
+      const network = withTimeout(fetch(request.url, { cache: "reload" }), 10000)
         .then((response) => {
           if (response.ok) {
             const copy = response.clone();

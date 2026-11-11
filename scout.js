@@ -811,33 +811,6 @@
     }
   });
 
-  const jsonFile = document.getElementById("json-file");
-  document.getElementById("import-json-button").addEventListener("click", () => jsonFile.click());
-  jsonFile.addEventListener("change", async () => {
-    const file = jsonFile.files[0];
-    if (!file) return;
-    try {
-      const parsed = JSON.parse(await file.text());
-      const imported = Array.isArray(parsed) ? parsed : parsed?.records;
-      const valid = Array.isArray(imported) && imported.length > 0 && imported.every((record) =>
-        record && typeof record === "object" && !Array.isArray(record) &&
-        ((record.data && typeof record.data === "object" && !Array.isArray(record.data)) ||
-         (String(record.initials || "").trim() && Number(record.match) > 0 && Number(record.team) > 0))
-      );
-      if (!valid) throw new Error("The file must contain scouting records with match data.");
-      const records = loadRecords();
-      localStorage.setItem(RECORDS_KEY, JSON.stringify(records.concat(imported)));
-      renderHistory();
-      applyDefaults();
-      showToast(imported.length + (imported.length === 1 ? " match imported" : " matches imported"));
-    } catch (error) {
-      console.error("Could not import scouting JSON.", error);
-      showStatus(error instanceof SyntaxError ? "Invalid JSON file." : error.message, true);
-    } finally {
-      jsonFile.value = "";
-    }
-  });
-
   document.getElementById("sync-pending-button").addEventListener("click", flushOutbox);
   window.addEventListener("online", flushOutbox);
 
