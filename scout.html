@@ -1,98 +1,227 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FRC Scout App | QR Scout — Match Data Collection &amp; Google Sheets Sync</title>
-  <meta name="description" content="Free FRC scouting app for FIRST Robotics Competition teams. Collect match scouting data with QR codes and sync it to Google Sheets. QR Scout and sheet scout tool for robot scouting and FRC match data.">
-  <meta name="keywords" content="FRC scout, frc scouting app, qr scout, sheet scout, robot scouting, frc match scouting, match data collection, google sheets scouting, first robotics scouting, qr code scouting, frc scout app">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://millerbots-2549.github.io/QR-Scout-Online/scout.html">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="QR Scout Online">
-  <meta property="og:title" content="FRC Scout App | QR Scout — Match Data Collection &amp; Google Sheets Sync">
-  <meta property="og:description" content="Free FRC scouting app for FIRST Robotics Competition teams. Collect match scouting data with QR codes and sync it to Google Sheets.">
-  <meta property="og:url" content="https://millerbots-2549.github.io/QR-Scout-Online/scout.html">
-  <meta property="og:image" content="https://millerbots-2549.github.io/QR-Scout-Online/assets/images/millerbot-orange.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="FRC Scout App | QR Scout — Match Data Collection &amp; Google Sheets Sync">
-  <meta name="twitter:description" content="Free FRC scouting app for FIRST Robotics Competition teams. Collect match scouting data with QR codes and sync it to Google Sheets.">
-  <link rel="preload" as="style" href="assets/css/styles.css">
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/images/millerbot-orange.png">
-  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#101311">
+  <title>Scout — Fieldnotes</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="site.css">
+  <style>
+    .shell { max-width: 1540px; margin: 0 auto; padding: 24px clamp(16px, 3vw, 44px) 48px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .top-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .saved-count { color: var(--site-muted); font-size: 12px; padding: 0 5px; }
+    .button { min-height: 39px; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid var(--site-line); border-radius: 9px; color: var(--site-text); background: var(--site-surface); text-decoration: none; font: inherit; font-size: 11px; cursor: pointer; }
+    .button:hover { border-color: #667167; background: #202521; }
+    .intro { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin: 25px 0 18px; }
+    .eyebrow { color: var(--site-lime); font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .15em; }
+    h1 { font-size: clamp(26px, 4vw, 36px); letter-spacing: -.055em; margin: 5px 0 4px; line-height: 1.1; }
+    .intro p { color: var(--site-muted); margin: 0; font-size: 13px; }
+    .match-pill { border: 1px solid var(--site-line); background: var(--site-surface); padding: 10px 13px; border-radius: 11px; color: var(--site-muted); white-space: nowrap; font-size: 11px; }
+    .match-pill strong { color: var(--site-text); font-size: 14px; margin-left: 5px; }
+    .sheet-settings, .panel { background: rgba(24,28,25,.94); border: 1px solid var(--site-line); border-radius: 13px; overflow: hidden; }
+    .sheet-settings { margin-top: 20px; }
+    .sheet-settings > summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 15px; cursor: pointer; list-style: none; }
+    .sheet-settings > summary::-webkit-details-marker { display: none; }
+    .sheet-settings > summary::after { content: "+"; color: var(--site-lime); font-size: 19px; line-height: 1; }
+    .sheet-settings[open] > summary::after { content: "−"; }
+    .sheet-title { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    .sheet-details { border-top: 1px solid var(--site-line); }
+    .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 15px; border-bottom: 1px solid var(--site-line); }
+    .panel-heading h2 { margin: 0; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    .panel-note { color: var(--site-muted); font-size: 11px; }
+    .sheet-body { display: grid; grid-template-columns: minmax(190px, 1fr) minmax(150px, .7fr) minmax(115px, .45fr) auto; align-items: end; gap: 10px; padding: 13px; }
+    .field { display: grid; gap: 7px; min-width: 0; }
+    .field label, .field-label { color: #c9d0c8; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; font-weight: 720; }
+    .control { width: 100%; color: var(--site-text); background: #111512; border: 1px solid #39423a; border-radius: 9px; min-height: 40px; padding: 9px 10px; outline: none; font: inherit; font-size: 12px; }
+    .control:focus { border-color: var(--site-lime); box-shadow: 0 0 0 3px rgba(195,243,107,.11); }
+    .control::placeholder { color: #707a71; }
+    select.control { cursor: pointer; }
+    textarea.control { resize: vertical; min-height: 75px; line-height: 1.5; }
+    .sheet-help { padding: 0 14px 12px; color: var(--site-muted); font-size: 10px; line-height: 1.5; }
+    .sheet-help strong { color: #c9d0c8; }
+    .scout-sections { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: start; }
+    .section-panel { scroll-margin-top: 16px; }
+    .panel-body { padding: 13px; display: grid; gap: 13px; }
+    .field-hint { color: var(--site-muted); font-size: 10px; line-height: 1.45; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: #d7ddd5; font-size: 12px; }
+    .toggle-row label { cursor: pointer; }
+    .switch { appearance: none; width: 38px; height: 22px; border-radius: 99px; background: #394039; position: relative; cursor: pointer; transition: .18s; flex: 0 0 auto; }
+    .switch::after { content: ""; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; border-radius: 50%; background: #aab3a9; transition: .18s; }
+    .switch:checked { background: var(--site-lime); }
+    .switch:checked::after { transform: translateX(16px); background: #1b2610; }
+    .counter { border: 1px solid #39423a; border-radius: 10px; overflow: hidden; background: #111512; }
+    .counter-value { font-size: 25px; line-height: 1; text-align: center; padding: 12px 0 10px; font-weight: 720; letter-spacing: -.05em; }
+    .counter-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0 8px 8px; }
+    .counter-buttons button { min-height: 31px; border: 1px solid #343d35; border-radius: 7px; background: var(--site-surface); color: var(--site-muted); cursor: pointer; font-size: 11px; }
+    .counter-buttons button.plus { color: var(--site-lime); border-color: #414d39; }
+    .counter-buttons button:hover { background: #2a332a; color: var(--site-text); }
+    .range-row { display: flex; align-items: center; gap: 10px; }
+    .range-row input { accent-color: var(--site-lime); width: 100%; }
+    .range-value { min-width: 24px; text-align: center; color: var(--site-lime); font-weight: 800; font-size: 12px; }
+    .phase-nav { display: flex; gap: 5px; padding: 5px; background: var(--site-surface); border: 1px solid var(--site-line); border-radius: 12px; margin: 0 0 12px; overflow-x: auto; }
+    .phase-nav a { color: var(--site-muted); text-decoration: none; font-size: 11px; padding: 8px 11px; border-radius: 8px; white-space: nowrap; }
+    .phase-nav a:hover { color: var(--site-text); background: #202521; }
+    .footer-panel { margin-top: 13px; padding: 13px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .form-status { font-size: 11px; color: var(--site-muted); }
+    .form-status.error { color: #ff9a61; }
+    .footer-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+    .primary-button { background: var(--site-lime); color: #1b2610; border-color: var(--site-lime); font-weight: 750; }
+    .primary-button:hover:not(:disabled) { background: #d3ff8b; }
+    button:disabled { opacity: .5; cursor: wait; }
+    .history { margin-top: 26px; }
+    .history-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .history-head h2 { font-size: 15px; margin: 0; letter-spacing: -.02em; }
+    .history-head p { color: var(--site-muted); margin: 3px 0 0; font-size: 11px; }
+    .history-list { display: grid; gap: 8px; }
+    .empty-state { color: var(--site-muted); border: 1px dashed #3a443b; background: rgba(24,28,25,.55); border-radius: 12px; padding: 19px; text-align: center; font-size: 12px; }
+    .saved-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--site-line); background: var(--site-surface); border-radius: 11px; }
+    .saved-card strong { display: block; font-size: 12px; }
+    .saved-card small { display: block; color: var(--site-muted); margin-top: 4px; font-size: 10px; }
+    .saved-score { color: var(--site-lime); font-size: 11px; font-weight: 750; white-space: nowrap; }
+    .saved-card button { border: 0; background: transparent; color: var(--site-muted); cursor: pointer; padding: 6px; }
+    .saved-card-main { min-width: 0; }
+    .record-menu { position: relative; flex: 0 0 auto; }
+    .record-menu > summary { list-style: none; cursor: pointer; border: 1px solid var(--site-line); border-radius: 8px; padding: 6px 9px; color: var(--site-muted); font-size: 11px; white-space: nowrap; }
+    .record-menu > summary::-webkit-details-marker { display: none; }
+    .record-menu > summary:hover, .record-menu[open] > summary { border-color: #667167; color: var(--site-text); }
+    .record-menu-actions { position: absolute; z-index: 2; top: calc(100% + 5px); right: 0; width: 168px; display: grid; gap: 3px; padding: 5px; border: 1px solid var(--site-line); border-radius: 10px; background: #202521; box-shadow: 0 10px 24px #0008; }
+    .record-menu-actions button { width: 100%; padding: 8px; text-align: left; border: 0; border-radius: 6px; background: transparent; color: var(--site-text); font-size: 11px; cursor: pointer; }
+    .record-menu-actions button:hover { background: #303832; }
+    dialog.modal { width: min(680px, calc(100% - 28px)); max-height: min(88vh, 850px); padding: 0; border: 1px solid var(--site-line); border-radius: 15px; color: var(--site-text); background: #181c19; box-shadow: 0 20px 70px #000a; }
+    dialog.modal::backdrop { background: rgba(4,6,4,.78); backdrop-filter: blur(3px); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--site-line); }
+    .modal-head h2 { margin: 0; font-size: 14px; }
+    .modal-body { display: grid; gap: 12px; padding: 16px 18px; }
+    .modal-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 0 18px 16px; }
+    .json-editor { width: 100%; min-height: min(55vh, 470px); resize: vertical; padding: 12px; border: 1px solid #39423a; border-radius: 9px; color: var(--site-text); background: #111512; font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; tab-size: 2; }
+    .modal-hint { color: var(--site-muted); font-size: 11px; line-height: 1.5; }
+    .commit-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+    .commit-choice { display: grid; align-content: start; gap: 8px; min-height: 105px; padding: 13px; border: 1px solid var(--site-line); border-radius: 10px; text-align: left; color: var(--site-text); background: #202521; cursor: pointer; }
+    .commit-choice:hover { border-color: var(--site-lime); background: #252d25; }
+    .commit-choice strong { font-size: 12px; }
+    .commit-choice span { color: var(--site-muted); font-size: 10px; line-height: 1.5; }
+    .commit-choice.primary { color: #1b2610; border-color: var(--site-lime); background: var(--site-lime); }
+    .commit-choice.primary span { color: #394631; }
+    .commit-choice:disabled { opacity: .5; cursor: wait; }
+    .dialog-status { min-height: 17px; color: var(--site-muted); font-size: 11px; }
+    .dialog-status.error { color: #ff9a61; }
+    #qr-preview { width: min(100%, 360px); min-height: 120px; justify-self: center; display: grid; place-items: center; padding: 12px; border-radius: 10px; background: #fff; }
+    #qr-preview canvas, #qr-preview img { display: block; max-width: 100%; height: auto; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: .2s; background: var(--site-lime); color: #1b2610; padding: 11px 16px; border-radius: 9px; font-size: 12px; font-weight: 750; box-shadow: 0 8px 30px #0008; z-index: 3; }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    .config-error { margin: 12px 0; padding: 12px; border: 1px solid #80483d; border-radius: 9px; color: #ffb398; font-size: 12px; }
+    @media (max-width: 1150px) { .scout-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 720px) {
+      .shell { padding: 16px 13px 32px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .top-actions { width: 100%; }
+      .intro { align-items: flex-start; flex-direction: column; }
+      .sheet-body { grid-template-columns: 1fr 1fr; }
+      .sheet-body .button { min-height: 40px; }
+      .scout-sections { grid-template-columns: 1fr; }
+      .footer-panel { align-items: stretch; flex-direction: column; }
+      .commit-choices { grid-template-columns: 1fr; }
+      .commit-choice { min-height: auto; }
+      .footer-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .footer-buttons button { min-height: 39px; padding: 0 7px; }
+    }
+  </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand-block" role="button" tabindex="0" aria-label="Return to home" onclick="location.href='index.html'">
-        <div class="brand-title">2549 Millerbots Scouting</div>
+  <main class="shell">
+    <header class="topbar">
+      <a class="site-brand" href="index.html">
+        <span class="site-brand-mark" aria-hidden="true">F</span>
+        <span><span class="site-brand-name">fieldnotes<span style="color:var(--site-lime)">.</span></span><span class="site-brand-caption" style="display:block">FRC match scouting</span></span>
+      </a>
+      <div class="top-actions">
+        <span class="saved-count" id="saved-count">0 matches saved</span>
+        <button class="button" id="export-button" type="button">Export CSV</button>
+        <button class="button" id="export-json-button" type="button">JSON backup</button>
+        <button class="button" id="import-json-button" type="button">Import JSON</button>
+        <input id="json-file" type="file" accept=".json,application/json" hidden>
       </div>
-      <nav class="tabs" aria-label="Pages">
-        <a href="index.html">Home</a>
-        <a href="scout.html" class="tab-btn active">FRC Scout</a>
-        <a href="guide.html">Scouting Guide</a>
-        <a href="sheets.html">Sheet Scout</a>
-        <a href="apps.html">Download Apps</a>
-      </nav>
+    </header>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="scout.html" aria-current="page">Scout</a>
+      <a href="guide.html">Guide</a>
+      <a href="feedback.html">Feedback</a>
+      <a href="apps.html">Apps</a>
+    </nav>
+    <div class="intro">
+      <div><div class="eyebrow" id="config-title">Match scouting</div><h1>Record what happens.</h1><p>Quick, consistent notes from the field, one match at a time.</p></div>
+      <div class="match-pill">CURRENT MATCH <strong id="match-badge">#1</strong></div>
     </div>
-  </header>
-  <main class="single-page">
-    <section id="scoutHero" class="panel welcome-panel">
-      <div class="eyebrow">FRC Scout App · QR Scout Online</div>
-      <h1>FRC Scout App — Collect Match Data &amp; Sync to Google Sheets</h1>
-      <p>QR Scout Online is a free <strong>FRC scout</strong> app for FIRST Robotics Competition teams. Collect <strong>match scouting data</strong> on any phone, tablet, or laptop, then <strong>sync scouting data to Google Sheets</strong> with one tap. It also works as a <strong>sheet scout</strong> and <strong>robot scouting</strong> tool, with <strong>QR code</strong> backups that scan offline.</p>
-      <a href="index.html" class="primary" style="display:inline-block;margin-top:10px;">Open the FRC scouting app →</a>
-    </section>
-
-    <section class="panel">
-      <div class="eyebrow">How the FRC scout app works</div>
-      <h2>Collect match scouting data in three steps</h2>
-      <div class="feature-grid">
-        <div class="step-card">
-          <div class="step-number">1</div>
-          <h3>Load a scouting config</h3>
-          <p>Import your own JSON config or load the built-in 2549 Millerbots sample to set up your <strong>FRC match scouting</strong> form.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-number">2</div>
-          <h3>Scout each match</h3>
-          <p>Fill out the <strong>robot scouting</strong> form during the match. Generate a <strong>QR code</strong> backup for every entry so nothing is lost.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-number">3</div>
-          <h3>Sync to Google Sheets</h3>
-          <p>Enter your Google Sheet ID and commit. Every entry lands as a new row in <strong>your own</strong> spreadsheet — a true <strong>sheet scout</strong> workflow.</p>
+    <nav class="phase-nav" id="phase-nav" aria-label="Scout form sections"></nav>
+    <div id="config-error" class="config-error" role="alert" hidden></div>
+    <form id="scout-form" novalidate>
+      <div class="scout-sections" id="scout-sections"></div>
+      <div class="panel footer-panel">
+        <div class="form-status" id="form-status" role="status" aria-live="polite">Loading default scouting configuration…</div>
+        <div class="footer-buttons">
+          <button class="button" type="button" id="reset-button">Reset form</button>
+          <button class="button" type="button" id="sync-pending-button" hidden>Sync pending (0)</button>
+          <button class="button" type="button" id="edit-config-button">Edit JSON</button>
+          <button class="button primary-button" type="button" id="commit-button">Commit</button>
         </div>
       </div>
-    </section>
-
-    <section class="panel">
-      <div class="eyebrow">Why teams use QR Scout Online</div>
-      <h2>Free FRC scouting app features</h2>
-      <ul class="feature-list">
-        <li><strong>FRC match scouting form</strong> — configurable sections and fields for any game</li>
-        <li><strong>Sync to Google Sheets</strong> — every commit becomes a row in your own sheet</li>
-        <li><strong>QR code generator</strong> — offline, scannable scouting backups</li>
-        <li><strong>Offline queue</strong> — entries sync when you're back online</li>
-        <li><strong>No backend setup</strong> — static site, works on any device</li>
-        <li><strong>Free for all FRC teams</strong> — no login, no subscription</li>
-      </ul>
-      <p class="hint">Start scouting: <a href="index.html">Open the FRC scouting app</a> · <a href="guide.html">Read the FRC scouting guide</a></p>
+    </form>
+    <details class="sheet-settings" id="sheet-settings">
+      <summary><span class="sheet-title">Google Sheets sync settings</span><span class="panel-note">Connect your scouting sheet</span></summary>
+      <div class="sheet-details">
+        <form class="sheet-body" id="sheet-settings-form">
+          <div class="field"><label for="sheet-id">Google Sheet ID</label><input class="control" id="sheet-id" name="sheetId" autocomplete="off" placeholder="ID from your Google Sheet URL" required></div>
+          <div class="field"><label for="sheet-tab">Sheet tab</label><input class="control" id="sheet-tab" name="sheetName" value="Scouting" required></div>
+          <div class="field"><label for="sheet-column">Start column</label><input class="control" id="sheet-column" name="startColumn" value="A" maxlength="3" required></div>
+          <button class="button" type="submit">Save sheet</button>
+        </form>
+        <div class="sheet-help">Share your spreadsheet with the backend service account as an Editor: <strong>frc-scout@frc-scout-511222.iam.gserviceaccount.com</strong>. Your sheet settings are saved only in this browser.</div>
+      </div>
+    </details>
+    <section class="history" id="history-list" aria-label="Saved matches">
+      <div class="history-head"><div><h2>Saved matches</h2><p>Your scouting records, stored locally on this device.</p></div><button class="button" type="button" id="clear-history">Clear all</button></div>
+      <div class="history-list" id="history-items"></div>
     </section>
   </main>
-
-  <footer id="siteFooter" class="panel">
-    <h2>QR Scout Online — FRC Scouting &amp; Sheet Scout</h2>
-    <p>Free <strong>FRC scouting app</strong> by <strong>2549 Millerbots</strong>. Collect <strong>match scouting data</strong> with QR codes and sync to <strong>Google Sheets</strong>.</p>
-    <nav class="footer-links" aria-label="Footer navigation">
-      <a href="index.html">Home</a>
-      <a href="guide.html">FRC Scouting Guide</a>
-      <a href="sheets.html">Sheet Scout (Google Sheets)</a>
-      <a href="apps.html">Download Apps</a>
-      <a href="https://github.com/Millerbots-2549/QR-Scout-Online">GitHub Repository</a>
-    </nav>
-
-  </footer>
+  <dialog class="modal" id="commit-dialog" aria-labelledby="commit-dialog-title">
+    <div class="modal-head"><h2 id="commit-dialog-title">Commit scouting match</h2><button class="button" type="button" data-close-dialog="commit-dialog" aria-label="Close">Close</button></div>
+    <div class="modal-body">
+      <div class="modal-hint">Choose how to save this scouting entry.</div>
+      <div class="commit-choices">
+        <button class="commit-choice" type="button" data-commit-action="save"><strong>Save to device</strong><span>Keep this match in your saved matches on this device.</span></button>
+        <button class="commit-choice" type="button" data-commit-action="qr"><strong>Generate QR code</strong><span>Save this match and create a QR code you can download or scan.</span></button>
+        <button class="commit-choice primary" type="button" data-commit-action="sync"><strong>Sync to sheet</strong><span>Save this match and send its row to your Google Sheet.</span></button>
+      </div>
+      <div class="dialog-status" id="commit-status" role="status" aria-live="polite"></div>
+    </div>
+    <div class="modal-actions"><button class="button" type="button" data-close-dialog="commit-dialog">← Back to scouting</button></div>
+  </dialog>
+  <dialog class="modal" id="config-dialog" aria-labelledby="config-dialog-title">
+    <div class="modal-head"><h2 id="config-dialog-title">Edit scouting config JSON</h2><button class="button" type="button" data-close-dialog="config-dialog" aria-label="Close">Close</button></div>
+    <div class="modal-body">
+      <div class="modal-hint">Edit the form configuration. Applying a valid config updates the Scout form and saves your custom config in this browser.</div>
+      <textarea class="json-editor" id="config-editor" spellcheck="false" aria-label="Scouting configuration JSON"></textarea>
+      <input id="config-file" type="file" accept=".json,application/json" hidden>
+      <div class="form-status" id="config-status" role="status" aria-live="polite"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="button" type="button" id="load-config-file">Load JSON file</button>
+      <button class="button" type="button" id="reset-config">Use default</button>
+      <button class="button" type="button" id="download-config">Download JSON</button>
+      <button class="button primary-button" type="button" id="apply-config">Apply config</button>
+    </div>
+  </dialog>
+  <dialog class="modal" id="qr-dialog" aria-labelledby="qr-dialog-title">
+    <div class="modal-head"><h2 id="qr-dialog-title">Saved match QR code</h2><button class="button" type="button" data-close-dialog="qr-dialog" aria-label="Close">Close</button></div>
+    <div class="modal-body"><div class="modal-hint" id="qr-caption"></div><div id="qr-preview"></div><div class="form-status" id="qr-status" role="status" aria-live="polite"></div></div>
+    <div class="modal-actions"><button class="button primary-button" type="button" id="download-qr" disabled>Save QR image</button></div>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="qrcode.min.js"></script>
+  <script src="scout.js"></script>
+  <script src="site.js"></script>
 </body>
 </html>

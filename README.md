@@ -1,30 +1,30 @@
 # QR Scout Online
 
-QR Scout Online is a browser-based scouting app for FIRST Robotics Competition (FRC) teams. Fill out a match scouting form on any phone, tablet, or desktop, then save each entry as a QR-code backup or sync it straight into your own Google Sheet. It also includes a feedback page, an installable PWA, and desktop (Electron) and mobile (Capacitor) app shells.
+QR Scout Online is a browser-based scouting app for FIRST Robotics Competition (FRC) teams. The hosted Fieldnotes site lets scouts fill out a configurable match form, save entries on their device, create QR-code backups, and sync rows to their own Google Sheet. It includes a feedback form and an installable PWA.
 
 ## Using the hosted site (no setup)
 
 The easiest way to use QR Scout Online is the deployed site. You do not need to run or host anything yourself.
 
-1. Create a new Google Sheet (open `sheets.new`).
-2. **Share** that sheet with the app's service account email as an **Editor**. The email is shown on the site's **Start guide** tab (`frc-scout@frc-scout-511222.iam.gserviceaccount.com`). This is the only permission step, and it is what lets the site write rows into your sheet.
-3. On the **Home** tab, import a scouting config (upload your own JSON or click **Load sample**).
-4. On the **Scout** tab, click **Show sync**, paste your **Google Sheet ID** (the part of the sheet URL between `/d/` and `/edit`), optionally set a tab name, and click **Save sheet**.
-5. Fill out the form, click **Commit**, then choose **Sync to Sheet**. Each committed entry is appended as a new row in **your own** spreadsheet. Choose **QR Code** instead to turn the entry into a scannable offline backup.
+1. Create a Google Sheet.
+2. Share it with the app's service account (`frc-scout@frc-scout-511222.iam.gserviceaccount.com`) as an **Editor**.
+3. The default scouting form is ready on the **Scout** page. To customize it, select **Edit JSON** beside **Commit**; load or edit a config and choose **Apply config**.
+4. Open **Google Sheets sync settings** below the form actions. Paste the Sheet ID (the part of the sheet URL between `/d/` and `/edit`), set the tab and starting column, then select **Save sheet**.
+5. Fill out the form and select **Commit**. Choose **Save to device**, **Generate QR code**, or **Sync to sheet**. Sync appends the match row to your spreadsheet.
 
-Entries committed while offline are queued on the device and synced automatically when it reconnects. Feedback sent from the **Feedback** tab goes to the site owner (a `Feedback` tab and, when configured, an email), not to your scouting sheet.
+Matches are stored in the browser on that device. Offline sync attempts are queued for retry when the device reconnects. Use **JSON backup**, **Import JSON**, or **Export CSV** to transfer or archive match data. Feedback sent from the **Feedback** page goes to the site owner, not to your scouting sheet.
 
 ## How it works
 
-- The website (the scouting form) is a static site. The deployed copy runs on GitHub Pages; the desktop app bundles that same site locally, and the mobile app bundles an offline-only copy.
+- The Fieldnotes website is static and is published from the repository root on GitHub Pages. It can also be installed as a PWA where supported.
 - A small Node.js backend receives scouting entries and feedback. The deployed copy runs on Render.
 - **Scouting:** each scout enters the ID of their own Google Sheet and shares it with the backend's service account (as an Editor). The backend appends one row per entry to that sheet, so nobody ever shares a Google password with the app.
-- **Feedback:** submissions are saved to a `Feedback` tab in the site owner's sheet and can be emailed when SMTP is configured. The browser also has a FormSubmit fallback.
+- **Feedback:** submissions are saved to a `Feedback` tab in the site owner's sheet and can be emailed when SMTP is configured.
 - The backend also keeps a central master log of every submission (scouting + feedback) in a `Submissions` tab of the owner's master sheet.
-- QR codes and the offline outbox let you keep or transfer entries when you have no connection. The outbox is per-device and shared between the hosted site and the installed PWA.
-- Configurable forms: a scouting config is a JSON file describing sections and fields (text, number, boolean, select, counter, range, etc.). Import your own or use the built-in sample.
+- QR codes and the offline outbox let you keep or transfer entries when you have no connection. Browser storage is local to each device.
+- Configurable forms: the scouting config is a JSON file describing sections and fields. Edit it from the Scout page or import/export config and match JSON files.
 
-The website and the backend are separate deployments. Hosting the website does not start the backend. The sync and feedback URLs used by the site are set once as constants at the top of `assets/js/app.js`.
+The website and the backend are separate deployments. Hosting the website does not start the backend. The Scout page sends sheet sync requests to `/api/sync-sheet`; the Feedback page sends feedback to `/api/feedback`.
 
 ## Run the backend locally (self-hosting)
 
@@ -67,34 +67,28 @@ Keep `.env` and the service-account key private. Do not commit credentials to th
 
 The site is a static website. Serve the repository root with a local web server and open the address it provides. Do not open `index.html` directly as a `file://` URL; browser requests and app features need an HTTP or HTTPS origin.
 
-To point the site at your local backend, edit the two constants near the top of `assets/js/app.js` (they default to the hosted Render URLs):
-
-```js
-const BACKEND_URL = "http://localhost:3001/api/sync-sheet";
-const FEEDBACK_URL = "http://localhost:3001/api/feedback";
-```
+The site currently uses the hosted backend at `https://qr-scout-online.onrender.com`.
 
 ## Deploy
 
-1. Publish the repository root (including `index.html` and `assets/`) to a static host such as GitHub Pages.
+1. Push changes to the configured GitHub Pages branch to publish the repository-root site.
 2. Deploy the Node.js backend separately using a host that supports Node.js.
 3. Configure the backend environment variables on that host and make sure its service account can edit the target spreadsheet.
-4. Set `BACKEND_URL` and `FEEDBACK_URL` in `assets/js/app.js` to your deployed backend URLs. The current hosted endpoints are `https://qr-scout-online.onrender.com/api/sync-sheet` and `https://qr-scout-online.onrender.com/api/feedback`.
 
-The backend provides `GET /health`, `POST /api/sync-sheet`, and `POST /api/feedback` routes. The feedback route writes to a `Feedback` tab by default and can send email directly when the `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASS` settings are present. The feedback page also has a browser-based email fallback; the server's sheet and SMTP delivery behavior does not depend on that fallback.
+The backend provides `GET /health`, `POST /api/sync-sheet`, and `POST /api/feedback` routes. The feedback route writes to a `Feedback` tab by default and can send email directly when the `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASS` settings are present. The feedback form and sheet sync require access to the hosted backend.
 
 ## Desktop and mobile apps
 
 The repository includes installable app shells:
 
-- **Desktop:** The Electron app is in `app/`. It bundles the full website locally and loads it from disk, so scouting works offline while still having internet access for Google Sheets sync, feedback, and update checks. Run it locally with `cd app`, `npm install`, and `npm start`.
+- **Desktop:** The Electron app is in `app/`; existing release builds are linked from the Apps page. Those published packages are the QR Scout prototype builds and are not rebuilt when the Fieldnotes website changes.
 - **Android and iOS:** Capacitor project files. The mobile shell is offline-only: it loads a self-contained scouting page bundled in `mobile/www` (QR codes only, no network access). The Android project is pre-generated in `android/`; the iOS project is generated during CI via `npx cap add ios`. The top-level npm scripts include `npm run mobile:android` and `npm run mobile:ios` to sync the web assets into those projects; you still need the platform's development tools to build them.
 - **Release builds:** `.github/workflows/build-apps.yml` builds desktop packages (Windows zip x64/arm64, macOS dmg/zip x64/arm64, Linux AppImage/deb x64/arm64) and mobile packages when run manually or when a `v*` tag is pushed. The Android/iOS jobs are `continue-on-error`. Builds are unsigned, so operating systems may show a security warning and mobile installs may require sideloading.
 
 ## Useful files
 
-- `index.html` and `assets/`  website and its frontend code
-- `assets/js/app.js`  frontend logic; also holds `BACKEND_URL`, `FEEDBACK_URL`, and `SERVICE_EMAIL`
+- `index.html`, `scout.html`, `guide.html`, `apps.html`, and `feedback.html`  website pages
+- `scout.js`, `site.js`, and `sw.js`  scouting logic, PWA install support, and offline shell
 - `backend/server.js`  API server and Google Sheets integration
 - `.env.example`  example backend configuration (no real credentials)
 - `app/`  Electron desktop app
