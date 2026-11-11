@@ -82,13 +82,12 @@
     .saved-score { color: var(--site-lime); font-size: 11px; font-weight: 750; white-space: nowrap; }
     .saved-card button { border: 0; background: transparent; color: var(--site-muted); cursor: pointer; padding: 6px; }
     .saved-card-main { min-width: 0; }
-    .record-menu { position: relative; flex: 0 0 auto; }
-    .record-menu > summary { list-style: none; cursor: pointer; border: 1px solid var(--site-line); border-radius: 8px; padding: 6px 9px; color: var(--site-muted); font-size: 11px; white-space: nowrap; }
-    .record-menu > summary::-webkit-details-marker { display: none; }
-    .record-menu > summary:hover, .record-menu[open] > summary { border-color: #667167; color: var(--site-text); }
-    .record-menu-actions { position: absolute; z-index: 2; top: calc(100% + 5px); right: 0; width: 168px; display: grid; gap: 3px; padding: 5px; border: 1px solid var(--site-line); border-radius: 10px; background: #202521; box-shadow: 0 10px 24px #0008; }
-    .record-menu-actions button { width: 100%; padding: 8px; text-align: left; border: 0; border-radius: 6px; background: transparent; color: var(--site-text); font-size: 11px; cursor: pointer; }
-    .record-menu-actions button:hover { background: #303832; }
+    .record-options-button { flex: 0 0 auto; }
+    .record-dialog-summary { margin: 0; font-size: 13px; font-weight: 700; }
+    .record-dialog-meta { margin: 0; color: var(--site-muted); font-size: 11px; }
+    .record-dialog-actions { display: grid; gap: 8px; }
+    .record-dialog-actions button { justify-content: flex-start; min-height: 42px; text-align: left; }
+    .record-dialog-actions button.danger { color: #ff9a8b; }
     dialog.modal { width: min(680px, calc(100% - 28px)); max-height: min(88vh, 850px); padding: 0; border: 1px solid var(--site-line); border-radius: 15px; color: var(--site-text); background: #181c19; box-shadow: 0 20px 70px #000a; }
     dialog.modal::backdrop { background: rgba(4,6,4,.78); backdrop-filter: blur(3px); }
     .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--site-line); }
@@ -212,6 +211,19 @@
       <button class="button" type="button" id="reset-config">Use default</button>
       <button class="button" type="button" id="download-config">Download JSON</button>
       <button class="button primary-button" type="button" id="apply-config">Apply config</button>
+    </div>
+  </dialog>
+  <dialog class="modal" id="record-dialog" aria-labelledby="record-dialog-title">
+    <div class="modal-head"><h2 id="record-dialog-title">Saved match options</h2><button class="button" type="button" data-close-dialog="record-dialog" aria-label="Close">Close</button></div>
+    <div class="modal-body">
+      <p class="record-dialog-summary" id="record-dialog-summary"></p>
+      <p class="record-dialog-meta" id="record-dialog-meta"></p>
+      <div class="record-dialog-actions">
+        <button class="button" type="button" data-action="qr">Show / save QR</button>
+        <button class="button" type="button" data-action="json">Download match JSON</button>
+        <button class="button" type="button" data-action="sync">Sync to sheet</button>
+        <button class="button danger" type="button" data-action="delete">Delete match</button>
+      </div>
     </div>
   </dialog>
   <dialog class="modal" id="qr-dialog" aria-labelledby="qr-dialog-title">

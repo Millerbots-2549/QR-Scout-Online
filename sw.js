@@ -1,4 +1,4 @@
-const CACHE = "fieldnotes-shell-v1";
+const CACHE = "fieldnotes-shell-v2";
 const SHELL = [
   "./",
   "./index.html",

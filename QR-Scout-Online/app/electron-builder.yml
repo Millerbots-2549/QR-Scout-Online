@@ -1,22 +1,40 @@
 appId: com.homegrowncode.qrscout
-productName: QR Scout
+productName: Fieldnotes
 copyright: Copyright © 2026 Team 2549 Millerbots
 # Stable file names (no version) so the site's download links can point at
 # releases/latest/download/<name> forever.
-artifactName: 'QRScout-${os}-${arch}.${ext}'
+artifactName: 'Fieldnotes-${os}-${arch}.${ext}'
 directories:
   output: ../dist-app
 files:
   - main.js
   - package.json
 extraResources:
-  - from: ../index.html
+  - from: ../../index.html
     to: index.html
-  - from: ../manifest.webmanifest
+  - from: ../../scout.html
+    to: scout.html
+  - from: ../../guide.html
+    to: guide.html
+  - from: ../../apps.html
+    to: apps.html
+  - from: ../../feedback.html
+    to: feedback.html
+  - from: ../../site.css
+    to: site.css
+  - from: ../../site.js
+    to: site.js
+  - from: ../../scout.js
+    to: scout.js
+  - from: ../../qrcode.min.js
+    to: qrcode.min.js
+  - from: ../../default-config.json
+    to: default-config.json
+  - from: ../../manifest.webmanifest
     to: manifest.webmanifest
-  - from: ../sw.js
+  - from: ../../sw.js
     to: sw.js
-  - from: ../assets
+  - from: ../../assets
     to: assets
 win:
   target:
@@ -28,12 +46,12 @@ nsis:
   allowElevation: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: QR Scout
-  installerIcon: ../assets/images/millerbot-orange.png
-  uninstallerIcon: ../assets/images/millerbot-orange.png
-  installerHeader: ../assets/images/millerbot-orange.png
+  shortcutName: Fieldnotes
+  installerIcon: ../../assets/images/icon-512.png
+  uninstallerIcon: ../../assets/images/icon-512.png
+  installerHeader: ../../assets/images/icon-512.png
   differentialPackage: true
-icon: ../assets/images/millerbot-orange.png
+icon: ../../assets/images/icon-512.png
 mac:
   target:
     - dmg

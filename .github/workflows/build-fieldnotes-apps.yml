@@ -1,0 +1,83 @@
+name: Build Fieldnotes desktop apps
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: QR-Scout-Online/app
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify packaged Fieldnotes files
+        run: |
+          node -e "const fs=require('node:fs'); for (const file of ['index.html','scout.html','guide.html','apps.html','feedback.html','site.css','site.js','scout.js','qrcode.min.js','default-config.json','manifest.webmanifest','sw.js']) fs.accessSync('../../'+file)"
+
+      - name: Install Linux packaging prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libfuse2t64
+
+      - name: Build installers
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+        run: |
+          case "${{ runner.os }}" in
+            Windows) npx electron-builder --win zip --x64 --arm64 ;;
+            macOS)   npx electron-builder --mac dmg zip --x64 --arm64 ;;
+            Linux)   npx electron-builder --linux AppImage deb --x64 --arm64 ;;
+          esac
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldnotes-${{ runner.os }}
+          path: |
+            QR-Scout-Online/dist-app/*.dmg
+            QR-Scout-Online/dist-app/*.zip
+            QR-Scout-Online/dist-app/*.AppImage
+            QR-Scout-Online/dist-app/*.deb
+          if-no-files-found: error
+
+  release:
+    name: Publish desktop release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download installers
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Fieldnotes ${{ github.ref_name }}
+          files: artifacts/**
+          generate_release_notes: true

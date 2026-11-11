@@ -332,7 +332,9 @@
       const score = (Number(record.autoFuel) || 0) + (Number(record.teleFuel) || 0);
       const date = new Date(record.savedAt);
       const when = Number.isNaN(date.getTime()) ? "" : date.toLocaleString();
-      return '<article class="saved-card"><div class="saved-card-main"><strong>Match ' + escapeHtml(record.data?.matchNumber ?? record.match ?? "—") + " · Team " + escapeHtml(record.data?.robot ?? record.team ?? "—") + '</strong><small>Scouted by ' + escapeHtml(record.data?.scouter ?? record.initials ?? "—") + (when ? " · " + escapeHtml(when) : "") + '</small></div><span class="saved-score">' + score + ' fuel</span><details class="record-menu"><summary>Actions ▾</summary><div class="record-menu-actions"><button type="button" data-action="qr" data-index="' + index + '">Show / save QR</button><button type="button" data-action="json" data-index="' + index + '">Download match JSON</button><button type="button" data-action="sync" data-index="' + index + '">Sync to sheet</button><button type="button" data-action="delete" data-index="' + index + '">Delete match</button></div></details></article>';
+      const match = record.data?.matchNumber ?? record.match ?? "—";
+      const team = record.data?.robot ?? record.team ?? "—";
+      return '<article class="saved-card"><div class="saved-card-main"><strong>Match ' + escapeHtml(match) + " · Team " + escapeHtml(team) + '</strong><small>Scouted by ' + escapeHtml(record.data?.scouter ?? record.initials ?? "—") + (when ? " · " + escapeHtml(when) : "") + '</small></div><span class="saved-score">' + score + ' fuel</span><button class="button record-options-button" type="button" data-open-record data-index="' + index + '" aria-label="Options for match ' + escapeHtml(match) + ', team ' + escapeHtml(team) + '">Options</button></article>';
     }).join("");
   }
 
@@ -628,40 +630,65 @@
     }
   }
 
-  document.getElementById("history-items").addEventListener("click", async (event) => {
+  const recordDialog = document.getElementById("record-dialog");
+  document.getElementById("history-items").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-open-record]");
+    if (!button) return;
+    try {
+      const records = loadRecords();
+      const index = Number(button.dataset.index);
+      const record = records[index];
+      if (!record) throw new Error("Saved match not found.");
+      const match = record.data?.matchNumber ?? record.match ?? "—";
+      const team = record.data?.robot ?? record.team ?? "—";
+      const date = new Date(record.savedAt);
+      const when = Number.isNaN(date.getTime()) ? "" : date.toLocaleString();
+      recordDialog.dataset.index = String(index);
+      document.getElementById("record-dialog-summary").textContent = "Match " + match + " · Team " + team;
+      document.getElementById("record-dialog-meta").textContent = "Scouted by " + (record.data?.scouter ?? record.initials ?? "—") + (when ? " · Saved " + when : "");
+      recordDialog.showModal();
+    } catch (error) {
+      console.error("Could not open saved match options.", error);
+      showStatus("Could not open saved match options. " + error.message, true);
+    }
+  });
+
+  recordDialog.addEventListener("click", async (event) => {
     const button = event.target.closest("[data-action]");
     if (!button) return;
-    const index = Number(button.dataset.index);
+    const index = Number(recordDialog.dataset.index);
     const action = button.dataset.action;
-    if (action === "qr" || action === "json" || action === "sync") {
-      button.closest("details")?.removeAttribute("open");
-    }
     try {
       const records = loadRecords();
       const record = records[index];
       if (!record) throw new Error("Saved match not found.");
       if (action === "qr") {
+        recordDialog.close();
         createQr(record);
         return;
       }
       if (action === "json") {
+        recordDialog.close();
         const filename = "fieldnotes-match-" + (record.data?.matchNumber ?? record.match ?? index + 1) + "-team-" + (record.data?.robot ?? record.team ?? "unknown") + ".json";
         downloadBlob(filename, JSON.stringify(record, null, 2), "application/json");
         showToast("Saved match JSON downloaded");
         return;
       }
       if (action === "sync") {
+        recordDialog.close();
         await syncSavedRecord(record);
         return;
       }
       if (action !== "delete") return;
+      if (!confirm("Delete this saved match? This cannot be undone.")) return;
       records.splice(index, 1);
       localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+      recordDialog.close();
       renderHistory();
       showToast("Saved match removed");
     } catch (error) {
-      console.error("Could not remove saved match.", error);
-      showStatus("Could not remove saved match. " + error.message, true);
+      console.error("Could not complete the saved match action.", error);
+      showStatus("Could not complete this saved match action. " + error.message, true);
     }
   });
 

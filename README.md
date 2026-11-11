@@ -79,20 +79,16 @@ The backend provides `GET /health`, `POST /api/sync-sheet`, and `POST /api/feedb
 
 ## Desktop and mobile apps
 
-The repository includes installable app shells:
-
-- **Desktop:** The Electron app is in `app/`; existing release builds are linked from the Apps page. Those published packages are the QR Scout prototype builds and are not rebuilt when the Fieldnotes website changes.
-- **Android and iOS:** Capacitor project files. The mobile shell is offline-only: it loads a self-contained scouting page bundled in `mobile/www` (QR codes only, no network access). The Android project is pre-generated in `android/`; the iOS project is generated during CI via `npx cap add ios`. The top-level npm scripts include `npm run mobile:android` and `npm run mobile:ios` to sync the web assets into those projects; you still need the platform's development tools to build them.
-- **Release builds:** `.github/workflows/build-apps.yml` builds desktop packages (Windows zip x64/arm64, macOS dmg/zip x64/arm64, Linux AppImage/deb x64/arm64) and mobile packages when run manually or when a `v*` tag is pushed. The Android/iOS jobs are `continue-on-error`. Builds are unsigned, so operating systems may show a security warning and mobile installs may require sideloading.
+- **Desktop:** The Electron shell in `QR-Scout-Online/app/` bundles the current Fieldnotes pages from the repository root. Push a `v*` tag to run `.github/workflows/build-fieldnotes-apps.yml` and publish Windows, macOS, and Linux installers. Builds are unsigned, so operating systems may show a security warning.
+- **Phones and tablets:** Install the Fieldnotes PWA from the browser. The service worker caches the app shell; match data stays in local browser storage on that device. Google Sheets sync and feedback require internet access.
 
 ## Useful files
 
 - `index.html`, `scout.html`, `guide.html`, `apps.html`, and `feedback.html`  website pages
 - `scout.js`, `site.js`, and `sw.js`  scouting logic, PWA install support, and offline shell
+- `QR-Scout-Online/app/`  Electron desktop shell packaged with the Fieldnotes site
 - `backend/server.js`  API server and Google Sheets integration
 - `.env.example`  example backend configuration (no real credentials)
-- `app/`  Electron desktop app
-- `android/`, `mobile/`, and `capacitor.config.js`  Capacitor mobile app shells (iOS project generated in CI)
 - `sw.js` and `manifest.webmanifest`  PWA service worker and manifest
-- `.github/workflows/build-apps.yml`  app build workflow
+- `.github/workflows/build-fieldnotes-apps.yml`  Fieldnotes desktop release workflow
 - `.github/workflows/pages.yml`  GitHub Pages deployment workflow
