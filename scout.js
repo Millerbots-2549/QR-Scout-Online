@@ -210,15 +210,9 @@
 
   function renderConfig() {
     const sections = document.getElementById("scout-sections");
-    const nav = document.getElementById("phase-nav");
     sections.replaceChildren();
-    nav.replaceChildren();
     config.sections.forEach((section, sectionIndex) => {
       const sectionId = makeId(section.name || "fields-" + sectionIndex);
-      const navLink = document.createElement("a");
-      navLink.href = "#" + sectionId;
-      navLink.textContent = String(sectionIndex + 1).padStart(2, "0") + " " + (section.name || "Fields");
-      nav.appendChild(navLink);
 
       const panel = document.createElement("section");
       panel.className = "panel section-panel";

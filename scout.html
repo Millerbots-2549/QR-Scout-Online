@@ -66,9 +66,6 @@
     .range-row { display: flex; align-items: center; gap: 10px; }
     .range-row input { accent-color: var(--site-lime); width: 100%; }
     .range-value { min-width: 24px; text-align: center; color: var(--site-lime); font-weight: 800; font-size: 12px; }
-    .phase-nav { display: flex; gap: 5px; padding: 5px; background: var(--site-surface); border: 1px solid var(--site-line); border-radius: 12px; margin: 0 0 12px; overflow-x: auto; }
-    .phase-nav a { color: var(--site-muted); text-decoration: none; font-size: 11px; padding: 8px 11px; border-radius: 8px; white-space: nowrap; }
-    .phase-nav a:hover { color: var(--site-text); background: #202521; }
     .footer-panel { margin-top: 13px; padding: 13px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .form-status { font-size: 11px; color: var(--site-muted); }
     .form-status.error { color: #ff9a61; }
@@ -168,7 +165,6 @@
       <div><div class="eyebrow" id="config-title">Match scouting</div><h1>Record what happens.</h1><p>Quick, consistent notes from the field, one match at a time.</p></div>
       <div class="match-pill">CURRENT MATCH <strong id="match-badge">#1</strong></div>
     </div>
-    <nav class="phase-nav" id="phase-nav" aria-label="Scout form sections"></nav>
     <div id="config-error" class="config-error" role="alert" hidden></div>
     <form id="scout-form" novalidate>
       <div class="scout-sections" id="scout-sections"></div>

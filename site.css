@@ -233,7 +233,6 @@ body .feedback-card,
 body .sheet-settings,
 body .panel,
 body .section-panel,
-body .phase-nav,
 body .match-pill,
 body .saved-card,
 body .empty-state,
@@ -247,7 +246,6 @@ body .counter {
 }
 body .workspace-card:hover,
 body .site-nav a:hover,
-body .phase-nav a:hover,
 body .counter-buttons button:hover,
 body .button:hover {
   color: var(--site-text) !important;
@@ -361,7 +359,6 @@ body .config-error {
 :root[data-theme="dark"] body .sheet-settings,
 :root[data-theme="dark"] body .panel,
 :root[data-theme="dark"] body .section-panel,
-:root[data-theme="dark"] body .phase-nav,
 :root[data-theme="dark"] body .match-pill,
 :root[data-theme="dark"] body .saved-card,
 :root[data-theme="dark"] body .empty-state,
@@ -380,7 +377,6 @@ body .config-error {
   border-color: #35566d !important;
 }
 :root[data-theme="dark"] body .site-nav a:hover,
-:root[data-theme="dark"] body .phase-nav a:hover,
 :root[data-theme="dark"] body .counter-buttons button:hover,
 :root[data-theme="dark"] body .button:hover,
 :root[data-theme="dark"] body .theme-toggle:hover {
