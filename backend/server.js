@@ -233,52 +233,43 @@ app.get('/health', (req, res) => {
 app.post('/api/sync-sheet', async (req, res) => {
   try {
     const payload = req.body || {};
-    const row = Array.isArray(payload.row)
-      ? payload.row
-      : Object.values(payload.data || {});
-
-    if (!row.length) {
-      return res.status(400).json({ ok: false, error: 'Missing row data.' });
-    }
-
-    const sheetId = payload.sheetId || process.env.GOOGLE_SHEET_ID;
-    const sheetName = payload.sheetName || process.env.SHEET_NAME || 'Scouting';
+    const row = Array.isArray(payload.row) ? payload.row : [];
+    const sheetId = typeof payload.sheetId === 'string' ? payload.sheetId.trim() : '';
+    const sheetName = typeof payload.sheetName === 'string' ? payload.sheetName.trim() : '';
     const startColumn = String(payload.startColumn || '').trim().toUpperCase();
-    if (!startColumn) {
-      return res.status(400).json({ ok: false, error: 'Missing startColumn.' });
-    }
+
+    if (!row.length) return res.status(400).json({ ok: false, error: 'Missing row data.' });
+    if (!sheetId) return res.status(400).json({ ok: false, error: 'Missing sheetId.' });
+    if (!sheetName) return res.status(400).json({ ok: false, error: 'Missing sheetName.' });
+    if (!startColumn) return res.status(400).json({ ok: false, error: 'Missing startColumn.' });
     if (!/^[A-Z]{1,3}$/.test(startColumn)) {
       return res.status(400).json({ ok: false, error: 'Start column must be 1-3 letters (A, B, ..., Z, AA, etc.).' });
     }
-
-    if (!sheetId) {
-      return res.status(400).json({ ok: false, error: 'Missing sheetId.' });
-    }
-    // Basic sheet ID validation (Google Sheet IDs are alphanumeric with hyphens/underscores)
     if (!/^[a-zA-Z0-9_-]{20,60}$/.test(sheetId)) {
       return res.status(400).json({ ok: false, error: 'Invalid sheet ID format. Check the Sheet ID from your Google Sheet URL.' });
+    }
+    if (sheetName.length > 100) {
+      return res.status(400).json({ ok: false, error: 'Sheet tab name is too long.' });
+    }
+    if (!row.every((value) => typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')) {
+      return res.status(400).json({ ok: false, error: 'Row contains an unsupported value.' });
     }
 
     const sheets = await getSheetsClient();
     await ensureSheetExists(sheets, sheetId, sheetName);
 
     const escapedSheetName = sheetName.replace(/'/g, "''");
-    const columnResult = await sheets.spreadsheets.values.get({
+    const startColumnResult = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: `'${escapedSheetName}'!${startColumn}1:${startColumn}1000`,
+      range: `'${escapedSheetName}'!${startColumn}:${startColumn}`,
       majorDimension: 'ROWS'
     });
 
-    const columnCells = columnResult.data.values || [];
+    const existingColumnValues = startColumnResult.data.values || [];
     let targetRow = 1;
-    while (targetRow <= 1000) {
-      const rowIndex = targetRow - 1;
-      const cell = columnCells[rowIndex]?.[0];
+    for (; targetRow <= existingColumnValues.length; targetRow++) {
+      const cell = existingColumnValues[targetRow - 1]?.[0];
       if (cell === undefined || cell === null || String(cell).trim() === '') break;
-      targetRow++;
-    }
-    if (targetRow > 1000) {
-      return res.status(400).json({ ok: false, error: `No empty row is available in column ${startColumn}.` });
     }
 
     await sheets.spreadsheets.values.update({
@@ -289,9 +280,6 @@ app.post('/api/sync-sheet', async (req, res) => {
         values: [row]
       }
     });
-
-    // Log every scouting sync to the master sheet with a timestamp.
-    await logSubmissionToMaster(sheets, 'scouting-sync', { sheetId, sheetName, rowCount: row.length });
 
     return res.json({
       ok: true,

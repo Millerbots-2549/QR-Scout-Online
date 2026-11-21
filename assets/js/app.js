@@ -575,16 +575,16 @@
     return window.location.protocol === "file:";
   }
 
-  function getSyncFailureDetails(scriptUrl, reasonText) {
+  function getSyncFailureDetails(backendUrl, reasonText) {
     const hints = [];
     if (isFileProtocol()) {
       hints.push("Open the site over localhost or GitHub Pages instead of a file path.");
     }
-    if (!scriptUrl) {
+    if (!backendUrl) {
       hints.push("Paste the running backend API URL.");
     } else {
       try {
-        const parsed = new URL(scriptUrl);
+        const parsed = new URL(backendUrl);
         if (!/^https?:/.test(parsed.href)) {
           hints.push("Use a real HTTP or HTTPS backend URL.");
         }
@@ -685,8 +685,6 @@
       return;
     }
 
-    const scriptUrl = BACKEND_URL;
-
     try {
       const payload = collectData();
       const sheetId = (config.googleSheetId || "").trim();
@@ -704,52 +702,24 @@
       }
       payload.startColumn = startColumn;
       const rowValues = Object.values(payload.data);
-
-      const body = JSON.stringify({
-        title: payload.title,
-        teamNumber: payload.teamNumber,
-        createdAt: payload.createdAt,
+      const syncPayload = {
         row: rowValues,
         sheetId: sheetId,
         sheetName: sheetName,
         startColumn: startColumn
-      });
+      };
 
-      setModalStatus("Sending scouting data to the script...", false, true);
-
-      fetchWithTimeout(scriptUrl, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-store",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body
-      }, FETCH_TIMEOUT_MS).then(async (res) => {
-        const responseText = await res.text();
-        let parsed = null;
-        try {
-          parsed = responseText ? JSON.parse(responseText) : null;
-        } catch (err) {
-          parsed = null;
-        }
-
-        if (!res.ok) {
-          throw new Error(responseText || "Script request failed.");
-        }
-
-        if (parsed && parsed.ok === false) {
-          throw new Error(parsed.error || "Script request rejected by the backend.");
-        }
-
-        setModalStatus("Scouting data sent to your Google Sheet.", false, true);
+      setModalStatus("Sending scouting data to Google Sheets...", false, true);
+      postEntry(sheetId, sheetName, syncPayload).then((message) => {
+        setModalStatus(message, false, true);
         shouldAdvanceMatch = true;
       }).catch((err) => {
         const raw = err && err.message ? err.message : "Could not sync to your sheet.";
+        enqueueOffline(sheetId, sheetName, syncPayload);
         const fallbackCsv = downloadCsvFallback(payload);
-        const detailed = getSyncFailureDetails(scriptUrl, raw);
-        setModalStatus(`${detailed} Manual backup downloaded as CSV so you can import it into Google Sheets.`, true);
-        console.warn("Script sync failed. CSV fallback created.", { raw, fallbackCsv, scriptUrl, sheetName });
+        const detailed = getSyncFailureDetails(BACKEND_URL, raw);
+        setModalStatus(`${detailed} Added to the retry queue. Manual backup downloaded as CSV.`, true);
+        console.warn("Sheet sync failed. Entry queued and CSV fallback created.", { raw, fallbackCsv, sheetName });
       });
     } catch (err) {
       const raw = err && err.message ? err.message : "Could not sync to your sheet.";
@@ -757,7 +727,7 @@
       const fallbackCsv = downloadCsvFallback(payload);
       const detailed = getSyncFailureDetails(BACKEND_URL, raw);
       setModalStatus(`${detailed} Manual backup downloaded as CSV so you can import it into Google Sheets.`, true);
-      console.warn("Script sync exception. CSV fallback created.", { raw, fallbackCsv, config });
+      console.warn("Sheet sync exception. CSV fallback created.", { raw, fallbackCsv, config });
     }
   }
 
