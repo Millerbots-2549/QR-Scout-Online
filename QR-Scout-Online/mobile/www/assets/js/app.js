@@ -281,7 +281,8 @@
 
     const currentSheetId = $("googleSheetId") ? $("googleSheetId").value.trim() : (config.googleSheetId || "");
     const currentSheetTab = $("sheetTabName") ? $("sheetTabName").value.trim() : (config.googleSheetTab || "Sheet1");
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ config, form: formState, sheetId: currentSheetId, sheetTab: currentSheetTab }));
+    const currentStartColumn = $("startColumn") ? ($("startColumn").value.trim().toUpperCase() || "A") : (config.googleStartColumn || "A");
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ config, form: formState, sheetId: currentSheetId, sheetTab: currentSheetTab, startColumn: currentStartColumn }));
   }
 
   function applySavedValues() {
@@ -667,6 +668,7 @@
       }
 
       const startColumn = ($("startColumn").value.trim() || "A").toUpperCase();
+      payload.startColumn = startColumn;
       const rowValues = Object.values(payload.data);
 
       const body = JSON.stringify({
@@ -946,6 +948,7 @@
     setStatus("Configuration loaded. Fill in the fields, then generate a QR code.");
     $("sheetTabName").value = config.googleSheetTab || "Sheet1";
     $("googleSheetId").value = config.googleSheetId || "";
+    $("startColumn").value = (config.googleStartColumn || "A").toUpperCase();
     setGoogleFormStatus(config.googleSheetId ? "Sheet saved. Ready to sync." : "No sheet configured yet.", false);
     saveCurrentState();
     setActiveTab("scout");
@@ -1281,7 +1284,7 @@
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch((err) => {
-        console.warn(\"Fullscreen failed:\", err);
+        console.warn("Fullscreen failed:", err);
       });
     } else {
       document.exitFullscreen();
