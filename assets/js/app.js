@@ -32,6 +32,7 @@
     return stub;
   };
   const STORAGE_KEY = "qrscoutSavedState";
+  const RETAINED_KEY = "qrscoutRetainedFields";
   // Offline outbox: entries queued while the device has no connection, synced
   // when it comes back (pit / airplane mode). Same-origin key, so the hosted
   // site and the installed PWA share one queue per device.
@@ -266,9 +267,25 @@
     localStorage.removeItem(STORAGE_KEY);
   }
 
+  function readRetainedFields() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(RETAINED_KEY) || "{}");
+      return saved && typeof saved === "object" ? saved : {};
+    } catch (err) {
+      return {};
+    }
+  }
+
+  function writeRetainedFields(values) {
+    const retained = readRetainedFields();
+    Object.assign(retained, values);
+    localStorage.setItem(RETAINED_KEY, JSON.stringify(retained));
+  }
+
   function saveCurrentState() {
     if (!config || !$("formArea")) return;
     const formState = {};
+    const retained = {};
     $("formArea").querySelectorAll("[data-field-code]").forEach((control) => {
       const code = control.dataset.fieldCode;
       const type = control.dataset.fieldType;
@@ -277,7 +294,11 @@
       else if (type === "number" || type === "counter" || type === "range") value = control.value === "" ? "" : Number(control.value);
       else value = control.value;
       formState[code] = value;
+      if (code === "scouter" || code === "startPos") {
+        if (value !== "" && value !== null && value !== undefined) retained[code] = value;
+      }
     });
+    if (Object.keys(retained).length) writeRetainedFields(retained);
 
     const currentSheetId = $("googleSheetId") ? $("googleSheetId").value.trim() : (config.googleSheetId || "");
     const currentSheetTab = $("sheetTabName") ? $("sheetTabName").value.trim() : (config.googleSheetTab || "Sheet1");
@@ -287,9 +308,14 @@
 
   function applySavedValues() {
     const saved = getSavedState();
+    const retained = readRetainedFields();
     if (!saved || !saved.form) return;
     $("formArea").querySelectorAll("[data-field-code]").forEach((control) => {
       const code = control.dataset.fieldCode;
+      if ((code === "scouter" || code === "startPos") && retained[code] !== undefined) {
+        control.value = retained[code];
+        return;
+      }
       const value = saved.form[code];
       if (value === undefined) return;
       const type = control.dataset.fieldType;
@@ -811,6 +837,7 @@
         nextMatchNumber = (Number.isFinite(current) ? current : 1) + step;
       }
     });
+    writeRetainedFields(preserved);
     clearSavedState();
     renderForm();
     $("formArea").querySelectorAll("[data-field-code]").forEach((control) => {
@@ -975,8 +1002,9 @@
     $("jsonEditor").value = JSON.stringify(config, null, 2);
     $("managerStatus").textContent = "Saved scouting data restored.";
     $("managerStatus").className = "status ok";
-    $("sheetTabName").value = config.googleSheetTab || "Sheet1";
+    $("sheetTabName").value = saved.sheetTab || config.googleSheetTab || "Sheet1";
     $("googleSheetId").value = config.googleSheetId || saved.sheetId || "";
+    $("startColumn").value = saved.startColumn || config.googleStartColumn || "";
     setStatus("Saved progress restored.");
   }
 
