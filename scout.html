@@ -188,7 +188,7 @@
         <form class="sheet-body" id="sheet-settings-form">
           <div class="field"><label for="sheet-id">Google Sheet ID</label><input class="control" id="sheet-id" name="sheetId" autocomplete="off" placeholder="ID from your Google Sheet URL" required></div>
           <div class="field"><label for="sheet-tab">Sheet tab</label><input class="control" id="sheet-tab" name="sheetName" value="Scouting" required></div>
-          <div class="field"><label for="sheet-column">Start column</label><input class="control" id="sheet-column" name="startColumn" value="" maxlength="3" required></div>
+          <div class="field"><label for="sheet-column">Start column</label><input class="control" id="sheet-column" name="startColumn" value="A" maxlength="3" required></div>
           <button class="button" type="submit">Save sheet</button>
         </form>
       <div class="sheet-help">Share your spreadsheet with the backend service account as an Editor: <strong>frc-scout@frc-scout-511222.iam.gserviceaccount.com</strong>. Your sheet settings are saved only in this browser.</div>
@@ -202,7 +202,7 @@
   <dialog class="modal" id="commit-dialog" aria-labelledby="commit-dialog-title">
     <div class="modal-head"><h2 id="commit-dialog-title">Commit scouting match</h2><button class="button" type="button" data-close-dialog="commit-dialog" aria-label="Close">Close</button></div>
     <div class="modal-body">
-      <div class="modal-hint">Choose how to save this scouting entry.</div>
+      <div class="modal-hint">Choose how to save this scouting entry. QR codes contain a tab-separated row for Google Sheets.</div>
       <div class="commit-choices">
         <button class="commit-choice" type="button" data-commit-action="save"><strong>Save to device</strong><span>Keep this match in your saved matches on this device.</span></button>
         <button class="commit-choice" type="button" data-commit-action="qr"><strong>Generate QR code</strong><span>Save this match and create a QR code you can download or scan.</span></button>

@@ -217,7 +217,7 @@ async function logSubmissionToMaster(sheets, source, details) {
 }
 
 const STARTED_AT = new Date().toISOString();
-const BACKEND_REVISION = 'starting-column-v2';
+const BACKEND_REVISION = 'append-rows-v3';
 
 app.get('/health', (req, res) => {
     res.json({
@@ -259,27 +259,19 @@ app.post('/api/sync-sheet', async (req, res) => {
     await ensureSheetExists(sheets, sheetId, sheetName);
 
     const escapedSheetName = sheetName.replace(/'/g, "''");
-    const startColumnResult = await sheets.spreadsheets.values.get({
+    const appendResult = await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: `'${escapedSheetName}'!${startColumn}:${startColumn}`,
-      majorDimension: 'ROWS'
-    });
-
-    const existingColumnValues = startColumnResult.data.values || [];
-    let targetRow = 1;
-    for (; targetRow <= existingColumnValues.length; targetRow++) {
-      const cell = existingColumnValues[targetRow - 1]?.[0];
-      if (cell === undefined || cell === null || String(cell).trim() === '') break;
-    }
-
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: sheetId,
-      range: `'${escapedSheetName}'!${startColumn}${targetRow}`,
       valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
       requestBody: {
         values: [row]
       }
     });
+    const updatedRange = appendResult.data.updates && appendResult.data.updates.updatedRange;
+    const rowMatch = typeof updatedRange === 'string' && updatedRange.match(/![A-Z]+(\d+)/);
+    if (!rowMatch) throw new Error('Google Sheets did not report the row written.');
+    const targetRow = Number(rowMatch[1]);
 
     return res.json({
       ok: true,

@@ -1,6 +1,6 @@
 # QR Scout Online
 
-QR Scout Online is an FRC scouting app that focuses on being able to submit online to a Google Sheet via Render and a Google service account. It uses a custom JSON for the sheet so the software works from year to year. It also includes apps for Windows, Linux, and Mac. If you have any questions or feedback, feel free to ask!
+QR Scout Online is an FRC scouting app that submits match data to Google Sheets via Render and a Google service account. QR codes contain tab-separated scouting rows for Google Sheets, while the configurable scouting form remains separate. It also includes apps for Windows, Linux, and Mac.
 
 -Thanks
 

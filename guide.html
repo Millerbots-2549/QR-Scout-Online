@@ -62,7 +62,7 @@
         <p>Select <strong>Sync settings</strong> beside Commit to connect your sheet.</p>
         <ul>
           <li>Paste the Sheet ID from the URL between <code>/d/</code> and <code>/edit</code>.</li>
-          <li>Enter the destination tab name and starting column, then select <strong>Save sheet</strong>.</li>
+          <li>Enter the destination tab name and starting column (defaults to column A), then select <strong>Save sheet</strong>. Rows start with scouter initials in A, match number in B, and continue in scouting form order.</li>
           <li>Share the spreadsheet with <code>frc-scout@frc-scout-511222.iam.gserviceaccount.com</code> as an Editor.</li>
         </ul>
       </article>
@@ -73,7 +73,7 @@
         <p>Fill out the match form, then select <strong>Commit</strong> to choose what happens next.</p>
         <ul>
           <li><strong>Save to device</strong> keeps the match in Saved matches on this browser.</li>
-          <li><strong>Generate QR code</strong> saves the match and creates a shareable QR image.</li>
+          <li><strong>Generate QR code</strong> saves the match and creates a shareable QR image containing a tab-separated row for Google Sheets (not JSON).</li>
           <li><strong>Sync to sheet</strong> saves the match and sends its row to your configured sheet.</li>
         </ul>
       </article>

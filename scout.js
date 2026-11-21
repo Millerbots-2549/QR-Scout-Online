@@ -62,12 +62,12 @@
   }
 
   function readSettings() {
-    const saved = readJsonStorage(SETTINGS_KEY, { sheetId: "", sheetName: "Scouting", startColumn: "" });
+    const saved = readJsonStorage(SETTINGS_KEY, { sheetId: "", sheetName: "Scouting", startColumn: "A" });
     if (!saved || typeof saved !== "object" || Array.isArray(saved)) throw new Error("Saved Google Sheet settings have an invalid format.");
     return {
       sheetId: typeof saved.sheetId === "string" ? saved.sheetId : "",
       sheetName: typeof saved.sheetName === "string" && saved.sheetName.trim() ? saved.sheetName.trim() : "Scouting",
-      startColumn: typeof saved.startColumn === "string" ? saved.startColumn.trim().toUpperCase() : ""
+      startColumn: typeof saved.startColumn === "string" && saved.startColumn.trim() ? saved.startColumn.trim().toUpperCase() : "A"
     };
   }
 
@@ -590,13 +590,14 @@
     showStatus("Form reset. Your saved matches are unchanged.");
   });
 
+  function rowForRecord(record) {
+    if (Array.isArray(record.row)) return record.row;
+    const data = record.data && typeof record.data === "object" && !Array.isArray(record.data) ? record.data : record;
+    return config.sections.flatMap((section) => section.fields || []).map((field) => data[field.code] ?? "");
+  }
+
   function qrPayload(record) {
-    return JSON.stringify({
-      title: record.title || record.configTitle || config.title || "QR Scout",
-      teamNumber: record.teamNumber ?? config.teamNumber ?? null,
-      createdAt: record.createdAt || record.savedAt || new Date().toISOString(),
-      data: record.data || record
-    });
+    return rowForRecord(record).map((value) => String(value ?? "").replace(/[\t\r\n]+/g, " ")).join("\t");
   }
 
   function createQr(record) {
@@ -613,7 +614,7 @@
       correctLevel: QRCode.CorrectLevel.L
     });
     document.getElementById("qr-caption").textContent = "Match " + (record.data?.matchNumber ?? record.match ?? "—") + " · Team " + (record.data?.robot ?? record.team ?? "—");
-    document.getElementById("qr-status").textContent = "This code contains the saved scouting data. Save the PNG to keep or share it.";
+    document.getElementById("qr-status").textContent = "This code contains one tab-separated scouting row for Google Sheets, in the same column order as sheet sync.";
     const downloadButton = document.getElementById("download-qr");
     downloadButton.dataset.filename = "fieldnotes-match-" + (record.data?.matchNumber ?? record.match ?? "unknown") + "-team-" + (record.data?.robot ?? record.team ?? "unknown") + "-qr.png";
     downloadButton.disabled = false;
@@ -636,7 +637,7 @@
       title: record.title || record.configTitle || config.title || "QR Scout",
       teamNumber: record.teamNumber ?? config.teamNumber ?? null,
       createdAt: record.createdAt || record.savedAt,
-      row: record.row || Object.values(record.data || record),
+      row: rowForRecord(record),
       sheetId: settings.sheetId,
       sheetName: settings.sheetName,
       startColumn: settings.startColumn
