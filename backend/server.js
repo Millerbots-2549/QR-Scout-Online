@@ -263,21 +263,22 @@ app.post('/api/sync-sheet', async (req, res) => {
     await ensureSheetExists(sheets, sheetId, sheetName);
 
     const escapedSheetName = sheetName.replace(/'/g, "''");
-    const startColumnValues = await sheets.spreadsheets.values.get({
+    const columnResult = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: `'${escapedSheetName}'!${startColumn}:${startColumn}`,
+      range: `'${escapedSheetName}'!${startColumn}1:${startColumn}1000`,
       majorDimension: 'ROWS'
     });
 
-    const occupiedRows = startColumnValues.data.values || [];
+    const columnCells = columnResult.data.values || [];
     let targetRow = 1;
-    for (let index = 0; index < occupiedRows.length; index++) {
-      const firstCell = occupiedRows[index] && occupiedRows[index][0];
-      if (firstCell === undefined || firstCell === null || String(firstCell).trim() === '') {
-        targetRow = index + 1;
-        break;
-      }
-      targetRow = index + 2;
+    while (targetRow <= 1000) {
+      const rowIndex = targetRow - 1;
+      const cell = columnCells[rowIndex]?.[0];
+      if (cell === undefined || cell === null || String(cell).trim() === '') break;
+      targetRow++;
+    }
+    if (targetRow > 1000) {
+      return res.status(400).json({ ok: false, error: `No empty row is available in column ${startColumn}.` });
     }
 
     await sheets.spreadsheets.values.update({
