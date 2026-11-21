@@ -1,11 +1,11 @@
 /* QR Scout service worker: cache-first app shell so Chrome can offer
    "Install QR Scout" (PWA install requires a service worker + manifest). */
-const CACHE = "qrscout-shell-v13";
+const CACHE = "qrscout-shell-v14";
 const SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./assets/css/styles.css",
+  "./site.css",
   "./assets/js/app.js",
   "./assets/js/qrcode.min.js",
   "./assets/images/millerbot-orange.png"
