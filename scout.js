@@ -382,9 +382,6 @@
 
   function makeSyncPayload(record, settings) {
     return {
-      title: record.configTitle,
-      teamNumber: config.teamNumber ?? null,
-      createdAt: record.savedAt,
       row: record.row,
       sheetId: settings.sheetId,
       sheetName: settings.sheetName,

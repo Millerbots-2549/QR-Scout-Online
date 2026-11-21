@@ -1,80 +1,75 @@
-const CACHE = "qr-scout-docs-shell-v12";
+/* QR Scout service worker: cache-first app shell so Chrome can offer
+   "Install QR Scout" (PWA install requires a service worker + manifest). */
+const CACHE = "qrscout-shell-v13";
 const SHELL = [
   "./",
   "./index.html",
-  "./scout.html",
-  "./guide.html",
-  "./apps.html",
-  "./feedback.html",
   "./manifest.webmanifest",
-  "./assets/images/icon-192.png",
-  "./assets/images/icon-512.png",
-  "./assets/images/millerbot-orange.png",
-  "./site.css",
-  "./site.js",
-  "./scout.js",
-  "./qrcode.min.js",
-  "./default-config.json"
+  "./assets/css/styles.css",
+  "./assets/js/app.js",
+  "./assets/js/qrcode.min.js",
+  "./assets/images/millerbot-orange.png"
 ];
 
-function withTimeout(promise, milliseconds) {
+// Network timeout for fetch requests inside the SW so a dead network
+// doesn't stall the install/activate flow.
+function withTimeout(promise, ms) {
   let timer;
   const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => reject(new Error("Service worker request timed out.")), milliseconds);
+    timer = setTimeout(() => reject(new Error("sw-timeout")), ms);
   });
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
 self.addEventListener("install", (event) => {
-  const shellRequests = SHELL.map((path) =>
-    new Request(new URL(path, self.location.href), { cache: "reload" })
-  );
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(shellRequests)).then(() => self.skipWaiting())
+    caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
+// Navigations: network-first (fresh UI), fall back to the cached shell offline.
+// Other shell assets: stale-while-revalidate  serve the cache instantly, then
+// refresh it in the background so code/CSS updates propagate without a hard
+// reload or a manual CACHE bump. This keeps index.html and app.js in step.
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
+  if (url.origin !== self.location.origin) return; // let cross-origin requests pass through
 
   if (request.mode === "navigate") {
     event.respondWith(
-      withTimeout(fetch(request.url, { cache: "reload" }), 10000)
+      withTimeout(fetch(request), 10000)
         .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(request, copy));
-          }
+          const copy = response.clone();
+          caches.open(CACHE).then((cache) => cache.put("./index.html", copy));
           return response;
         })
-        .catch(async () => (await caches.match(request)) || caches.match("./index.html"))
+        .catch(() => caches.match("./index.html"))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const network = withTimeout(fetch(request.url, { cache: "reload" }), 10000)
+    caches.match(request).then((hit) => {
+      const network = withTimeout(fetch(request), 10000)
         .then((response) => {
-          if (response.ok) {
+          if (response && response.ok) {
             const copy = response.clone();
             caches.open(CACHE).then((cache) => cache.put(request, copy));
           }
           return response;
         })
-        .catch(() => cached);
-      return cached || network;
+        .catch(() => hit);
+      return hit || network;
     })
   );
 });
