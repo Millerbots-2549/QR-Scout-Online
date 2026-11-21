@@ -77,7 +77,7 @@
     return fetchWithTimeout(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sheetId, sheetName, row: payload.row, startColumn: (payload.startColumn || "A").toUpperCase() })
+      body: JSON.stringify({ sheetId, sheetName, row: payload.row, startColumn: String(payload.startColumn || "").trim().toUpperCase() })
     }, FETCH_TIMEOUT_MS).then(async (res) => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) {
