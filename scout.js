@@ -45,12 +45,12 @@
   }
 
   function readSettings() {
-    const saved = readJsonStorage(SETTINGS_KEY, { sheetId: "", sheetName: "Scouting", startColumn: "A" });
+    const saved = readJsonStorage(SETTINGS_KEY, { sheetId: "", sheetName: "Scouting", startColumn: "" });
     if (!saved || typeof saved !== "object" || Array.isArray(saved)) throw new Error("Saved Google Sheet settings have an invalid format.");
     return {
       sheetId: typeof saved.sheetId === "string" ? saved.sheetId : "",
       sheetName: typeof saved.sheetName === "string" && saved.sheetName.trim() ? saved.sheetName.trim() : "Scouting",
-      startColumn: typeof saved.startColumn === "string" && saved.startColumn.trim() ? saved.startColumn.trim().toUpperCase() : "A"
+      startColumn: typeof saved.startColumn === "string" ? saved.startColumn.trim().toUpperCase() : ""
     };
   }
 
@@ -342,7 +342,7 @@
     return {
       sheetId: document.getElementById("sheet-id").value.trim(),
       sheetName: document.getElementById("sheet-tab").value.trim() || "Scouting",
-      startColumn: document.getElementById("sheet-column").value.trim().toUpperCase() || "A"
+      startColumn: document.getElementById("sheet-column").value.trim().toUpperCase()
     };
   }
 

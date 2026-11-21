@@ -217,6 +217,7 @@ async function logSubmissionToMaster(sheets, source, details) {
 }
 
 const STARTED_AT = new Date().toISOString();
+const BACKEND_REVISION = 'starting-column-v2';
 
 app.get('/health', (req, res) => {
     res.json({
@@ -224,7 +225,8 @@ app.get('/health', (req, res) => {
       status: 'backend running',
       startedAt: STARTED_AT,
       uptime: Math.floor(process.uptime()),
-      version: require('../package.json').version || '1.0.0'
+      version: require('../package.json').version || '1.0.0',
+      revision: BACKEND_REVISION
     });
   });
 

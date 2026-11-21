@@ -281,7 +281,7 @@
 
     const currentSheetId = $("googleSheetId") ? $("googleSheetId").value.trim() : (config.googleSheetId || "");
     const currentSheetTab = $("sheetTabName") ? $("sheetTabName").value.trim() : (config.googleSheetTab || "Sheet1");
-    const currentStartColumn = $("startColumn") ? ($("startColumn").value.trim().toUpperCase() || "A") : (config.googleStartColumn || "A");
+    const currentStartColumn = $("startColumn") ? $("startColumn").value.trim().toUpperCase() : (config.googleStartColumn || "");
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ config, form: formState, sheetId: currentSheetId, sheetTab: currentSheetTab, startColumn: currentStartColumn }));
   }
 
@@ -608,7 +608,11 @@
 
     const sheetId = $("googleSheetId").value.trim();
     const sheetTabName = $("sheetTabName").value.trim() || "Sheet1";
-    const startColumn = $("startColumn").value.trim() || "A";
+    const startColumn = $("startColumn").value.trim().toUpperCase();
+    if (!/^[A-Z]{1,3}$/.test(startColumn)) {
+      setGoogleFormStatus("Enter a valid starting column, such as B or AA.", true);
+      return;
+    }
 
     if (!sheetId) {
       setGoogleFormStatus("Enter your Google Sheet ID before saving.", true);
@@ -628,7 +632,7 @@
   function clearGoogleFormSync() {
     $("googleSheetId").value = "";
     $("sheetTabName").value = $("sheetTabName").value.trim() || "Sheet1";
-    $("startColumn").value = "A";
+    $("startColumn").value = "";
     if (config) {
       delete config.googleSheetId;
       delete config.googleSheetTab;
@@ -667,7 +671,11 @@
         return;
       }
 
-      const startColumn = ($("startColumn").value.trim() || "A").toUpperCase();
+      const startColumn = $("startColumn").value.trim().toUpperCase();
+      if (!/^[A-Z]{1,3}$/.test(startColumn)) {
+        setModalStatus("Enter a valid starting column before syncing.", true);
+        return;
+      }
       payload.startColumn = startColumn;
       const rowValues = Object.values(payload.data);
 
@@ -948,7 +956,7 @@
     setStatus("Configuration loaded. Fill in the fields, then generate a QR code.");
     $("sheetTabName").value = config.googleSheetTab || "Sheet1";
     $("googleSheetId").value = config.googleSheetId || "";
-    $("startColumn").value = (config.googleStartColumn || "A").toUpperCase();
+    $("startColumn").value = (config.googleStartColumn || "").toUpperCase();
     setGoogleFormStatus(config.googleSheetId ? "Sheet saved. Ready to sync." : "No sheet configured yet.", false);
     saveCurrentState();
     setActiveTab("scout");
