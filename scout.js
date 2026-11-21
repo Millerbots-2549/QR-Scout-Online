@@ -6,6 +6,7 @@
   const SETTINGS_KEY = "fieldnotes-sheet-settings";
   const OUTBOX_KEY = "fieldnotes-sheet-outbox";
   const CONFIG_KEY = "fieldnotes-scout-config";
+  const RETAINED_KEY = "fieldnotes-scout-retained";
   const form = document.getElementById("scout-form");
   const status = document.getElementById("form-status");
   let config;
@@ -28,6 +29,22 @@
     const raw = localStorage.getItem(key);
     if (raw === null) return fallback;
     return JSON.parse(raw);
+  }
+
+  function readRetainedValues() {
+    try {
+      const retained = readJsonStorage(RETAINED_KEY, {});
+      return retained && typeof retained === "object" && !Array.isArray(retained) ? retained : {};
+    } catch (error) {
+      console.warn("Could not read retained form values.", error);
+      return {};
+    }
+  }
+
+  function writeRetainedValues(values) {
+    const retained = readRetainedValues();
+    Object.assign(retained, values);
+    localStorage.setItem(RETAINED_KEY, JSON.stringify(retained));
   }
 
   function loadRecords() {
@@ -236,6 +253,17 @@
   }
 
   function applyDefaults() {
+    const retainedFromForm = {};
+    form.querySelectorAll("[data-field-code]").forEach((control) => {
+      const field = config.sections.flatMap((section) => section.fields || []).find((item) => item.code === control.dataset.fieldCode);
+      if (!field || field.retainValue !== true) return;
+      const value = control.dataset.fieldType === "boolean" ? control.checked :
+        control.dataset.fieldType === "counter" ? control.dataset.value : control.value;
+      if (value !== "" && value !== null && value !== undefined) retainedFromForm[field.code] = value;
+    });
+    if (Object.keys(retainedFromForm).length) writeRetainedValues(retainedFromForm);
+    const retained = readRetainedValues();
+
     form.reset();
     form.querySelectorAll("[data-field-code]").forEach((control) => {
       const field = config.sections.flatMap((section) => section.fields || []).find((item) => item.code === control.dataset.fieldCode);
@@ -245,6 +273,13 @@
         control.dataset.value = String(field.defaultValue ?? 0);
         control.querySelector(".counter-value").textContent = control.dataset.value;
       } else if (field.defaultValue !== undefined) control.value = String(field.defaultValue);
+      if (field.retainValue === true && retained[field.code] !== undefined) {
+        if (field.type === "boolean") control.checked = Boolean(retained[field.code]);
+        else if (field.type === "counter") {
+          control.dataset.value = String(retained[field.code]);
+          control.querySelector(".counter-value").textContent = control.dataset.value;
+        } else control.value = String(retained[field.code]);
+      }
       const matchField = field.code === "matchNumber";
       if (matchField) control.value = String(nextMatchNumber());
       const output = control.closest(".range-row")?.querySelector("output");

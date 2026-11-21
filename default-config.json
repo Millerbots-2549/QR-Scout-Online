@@ -13,7 +13,8 @@
           "type": "text",
           "required": true,
           "code": "scouter",
-          "defaultValue": ""
+          "defaultValue": "",
+          "retainValue": true
         },
         {
           "title": "Match Number",
@@ -37,6 +38,7 @@
           "required": true,
           "code": "startPos",
           "defaultValue": "",
+          "retainValue": true,
           "choices": {
             "B1": "Blue 1",
             "B2": "Blue 2",
