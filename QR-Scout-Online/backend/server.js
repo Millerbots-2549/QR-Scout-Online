@@ -257,11 +257,28 @@ app.post('/api/sync-sheet', async (req, res) => {
     const sheets = await getSheetsClient();
     await ensureSheetExists(sheets, sheetId, sheetName);
 
-    await sheets.spreadsheets.values.append({
+    const escapedSheetName = sheetName.replace(/'/g, "''");
+    const startColumnValues = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: `${sheetName}!${startColumn}1`,
+      range: `'${escapedSheetName}'!${startColumn}:${startColumn}`,
+      majorDimension: 'ROWS'
+    });
+
+    const occupiedRows = startColumnValues.data.values || [];
+    let targetRow = 1;
+    for (let index = 0; index < occupiedRows.length; index++) {
+      const firstCell = occupiedRows[index] && occupiedRows[index][0];
+      if (firstCell === undefined || firstCell === null || String(firstCell).trim() === '') {
+        targetRow = index + 1;
+        break;
+      }
+      targetRow = index + 2;
+    }
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: sheetId,
+      range: `'${escapedSheetName}'!${startColumn}${targetRow}`,
       valueInputOption: 'RAW',
-      insertDataOption: 'INSERT_ROWS',
       requestBody: {
         values: [row]
       }
@@ -272,10 +289,12 @@ app.post('/api/sync-sheet', async (req, res) => {
 
     return res.json({
       ok: true,
-      status: 'Row appended successfully.',
+      status: `Row written successfully at ${startColumn}${targetRow}.`,
       sheetId,
       sheetName,
-      rowsAppended: row.length
+      targetRow,
+      startColumn,
+      rowsWritten: row.length
     });
   } catch (error) {
     console.error('sync-sheet failed:', error);
