@@ -217,6 +217,7 @@ async function logSubmissionToMaster(sheets, source, details) {
 }
 
 const STARTED_AT = new Date().toISOString();
+const BACKEND_REVISION = 'starting-column-v2';
 
 app.get('/health', (req, res) => {
     res.json({
@@ -224,7 +225,8 @@ app.get('/health', (req, res) => {
       status: 'backend running',
       startedAt: STARTED_AT,
       uptime: Math.floor(process.uptime()),
-      version: require('../package.json').version || '1.0.0'
+      version: require('../package.json').version || '1.0.0',
+      revision: BACKEND_REVISION
     });
   });
 
@@ -241,7 +243,10 @@ app.post('/api/sync-sheet', async (req, res) => {
 
     const sheetId = payload.sheetId || process.env.GOOGLE_SHEET_ID;
     const sheetName = payload.sheetName || process.env.SHEET_NAME || 'Scouting';
-    const startColumn = (payload.startColumn || 'A').toUpperCase();
+    const startColumn = String(payload.startColumn || '').trim().toUpperCase();
+    if (!startColumn) {
+      return res.status(400).json({ ok: false, error: 'Missing startColumn.' });
+    }
     if (!/^[A-Z]{1,3}$/.test(startColumn)) {
       return res.status(400).json({ ok: false, error: 'Start column must be 1-3 letters (A, B, ..., Z, AA, etc.).' });
     }
